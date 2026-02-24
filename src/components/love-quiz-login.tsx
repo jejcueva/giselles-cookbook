@@ -42,11 +42,7 @@ const QUESTIONS: QuizQuestion[] = [
   },
 ];
 
-const WRONG_MESSAGES = [
-  "That is not quite right. Try one more time.",
-  "Close, but not this one. You got this.",
-  "Nope, that answer does not unlock this cookbook.",
-];
+const WRONG_MESSAGE = "no nigga";
 
 const SESSION_KEY = "cute-cookbook-authenticated";
 
@@ -96,8 +92,6 @@ export function LoveQuizLogin() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const question = QUESTIONS[currentIndex];
-  const showHint = attempts >= 3;
-
   const submitAnswer = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -123,26 +117,13 @@ export function LoveQuizLogin() {
       return;
     }
 
-    // Wrong answer — shake, clear, then show a different message
-    const nextAttempts = attempts + 1;
-    setAttempts(nextAttempts);
-
-    const hintText = nextAttempts >= 3 ? ` Hint: ${question.hint}` : "";
-    const firstIndex = Math.floor(Math.random() * WRONG_MESSAGES.length);
-    const firstMessage = WRONG_MESSAGES[firstIndex];
-    const otherMessages = WRONG_MESSAGES.filter((_, i) => i !== firstIndex);
-    const secondMessage = otherMessages[Math.floor(Math.random() * otherMessages.length)];
-
-    setError(`${firstMessage}${hintText}`);
+    // Wrong answer — shake then show message
+    setAttempts((prev) => prev + 1);
+    setError(WRONG_MESSAGE);
     setErrorShaking(true);
 
     timerRef.current = setTimeout(() => {
-      setError("");
       setErrorShaking(false);
-
-      timerRef.current = setTimeout(() => {
-        setError(`${secondMessage}${hintText}`);
-      }, 350);
     }, 550);
   };
 
@@ -167,7 +148,7 @@ export function LoveQuizLogin() {
         </div>
 
         <p className="eyebrow">Question {currentIndex + 1} of {QUESTIONS.length}</p>
-        <h1 className="quiz-prompt">{question.prompt}</h1>
+        <p className="quiz-prompt">{question.prompt}</p>
 
         <form className="quiz-form" onSubmit={submitAnswer}>
           <input
@@ -183,10 +164,6 @@ export function LoveQuizLogin() {
 
           {error ? (
             <p className={`error-text${errorShaking ? " error-shake" : ""}`}>{error}</p>
-          ) : null}
-
-          {showHint && !error ? (
-            <small className="quiz-hint">Hint: {question.hint}</small>
           ) : null}
 
           <button type="submit">Check</button>
