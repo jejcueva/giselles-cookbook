@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Playfair_Display } from "next/font/google";
+import { Dancing_Script, Nunito, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -9,6 +9,11 @@ const nunito = Nunito({
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+});
+
+const dancingScript = Dancing_Script({
+  variable: "--font-dancing",
   subsets: ["latin"],
 });
 
@@ -24,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} ${playfair.variable}`}>{children}</body>
+      <body className={`${nunito.variable} ${playfair.variable} ${dancingScript.variable}`}>{children}</body>
     </html>
   );
 }

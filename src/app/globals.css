@@ -380,6 +380,64 @@ p {
   padding: 0.8rem;
 }
 
+/* ── Love letter scene ────────────────────────────────── */
+
+@keyframes letter-fade-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.love-letter-screen {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.love-letter {
+  animation: letter-fade-in 0.8s ease-out both;
+  background: linear-gradient(168deg, #fffaf3, #fff5eb, #fef9f4);
+  border: 1px solid #e2cdb8;
+  border-radius: 0.25rem;
+  box-shadow:
+    0 2px 12px rgba(74, 55, 40, 0.1),
+    inset 0 0 40px rgba(255, 248, 240, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 80vh;
+  max-width: 560px;
+  overflow-y: auto;
+  padding: 2.5rem 2rem;
+  width: 100%;
+}
+
+.love-letter-body {
+  color: #5a4133;
+  font-family: var(--font-dancing), cursive;
+  font-size: 1.35rem;
+  line-height: 1.75;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.love-letter-button {
+  background: #e03c3c;
+  border: none;
+  border-radius: 0;
+  color: #fff;
+  font-family: var(--font-nunito), sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  min-height: 2.7rem;
+  padding: 0.65rem 0.9rem;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────── */
+
 @media (max-width: 960px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -389,3 +447,66 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Birthday scene ──────────────────────────────────── */
+
+@keyframes birthday-fade-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.birthday-scene {
+  align-items: center;
+  background: #ffb3b3;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.birthday-scene-inner {
+  animation: birthday-fade-in 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+.birthday-video {
+  border-radius: 1.5rem;
+  max-height: 70vh;
+  max-width: 400px;
+  object-fit: cover;
+  width: 90vw;
+}
+
+/* ── Birthday Scene 2: "Happy Birthday, Jizzy!" ─────── */
+
+@keyframes birthday-entrance {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.birthday-screen {
+  align-items: center;
+  background: var(--color-background);
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1.5rem;
+  transition: opacity 0.6s ease;
+}
+
+.birthday-screen-fade-out {
+  opacity: 0;
+}
+
+.birthday-title {
+  animation: birthday-entrance 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  color: var(--color-text);
+  font-family: var(--font-playfair), serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  opacity: 0;
+  text-align: center;
+}
+

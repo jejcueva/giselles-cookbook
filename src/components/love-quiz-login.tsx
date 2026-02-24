@@ -112,7 +112,8 @@ export function LoveQuizLogin() {
         setShowSplash(false);
         if (currentIndex + 1 >= QUESTIONS.length) {
           localStorage.setItem(SESSION_KEY, "true");
-          router.push("/");
+          const seenBirthday = localStorage.getItem("has_seen_birthday");
+          router.push(seenBirthday ? "/" : "/birthday");
         } else {
           setCurrentIndex((prev) => prev + 1);
           setValue("");
