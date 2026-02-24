@@ -17,13 +17,11 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at top right, rgba(242, 184, 198, 0.4), transparent 45%),
-    radial-gradient(circle at bottom left, rgba(168, 191, 160, 0.32), transparent 35%),
-    var(--color-background);
+  background: #ffb3b3;
   color: var(--color-text);
   font-family: var(--font-nunito), sans-serif;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 h1,
@@ -38,10 +36,11 @@ p {
 }
 
 .eyebrow {
-  color: var(--color-secondary);
+  color: #000;
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -49,8 +48,13 @@ p {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   padding: 1.5rem;
+}
+
+.auth-screen .quiz-card {
+  transform: translateY(-15%);
 }
 
 .auth-card {
@@ -105,7 +109,18 @@ p {
   font-size: 0.8rem;
 }
 
-.quiz-form button,
+.quiz-form button {
+  background: #e03c3c;
+  border: none;
+  border-radius: 0;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.7rem;
+  padding: 0.65rem 0.9rem;
+}
+
 .topbar button,
 .logout-button {
   background: linear-gradient(120deg, var(--color-primary), #f9d4dd);
@@ -151,7 +166,28 @@ p {
 /* ── Single-question quiz layout ─────────────────────── */
 
 .quiz-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
   max-width: 480px;
+  text-align: center;
+}
+
+.quiz-cat-photo {
+  border-radius: 1rem;
+  display: block;
+  margin: 0 auto 0;
+  max-width: 174px;
+  width: 100%;
+}
+
+.quiz-heart {
+  color: #e03c3c;
+  font-size: 5rem;
+  line-height: 1;
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .quiz-progress {
@@ -162,31 +198,34 @@ p {
 }
 
 .quiz-dot {
-  background: var(--color-border);
-  border-radius: 50%;
-  height: 8px;
-  transition: background 0.3s, transform 0.3s;
-  width: 8px;
+  color: #000;
+  display: inline-block;
+  font-size: 1rem;
+  opacity: 0.3;
+  transition: color 0.3s, opacity 0.3s, transform 0.3s;
 }
 
 .quiz-dot-active {
-  background: var(--color-primary);
+  color: #e03c3c;
+  opacity: 1;
   transform: scale(1.35);
 }
 
 .quiz-dot-done {
-  background: var(--color-accent);
+  opacity: 1;
 }
 
 .quiz-prompt {
+  color: #000;
   font-size: clamp(1.4rem, 3vw, 2rem);
   line-height: 1.25;
+  text-align: center;
 }
 
 .quiz-single-input {
   background: #fff;
   border: 1px solid var(--color-border);
-  border-radius: 0.8rem;
+  border-radius: 0;
   color: var(--color-text);
   font: inherit;
   font-size: 1.05rem;

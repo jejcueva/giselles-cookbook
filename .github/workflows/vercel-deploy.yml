@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 concurrency:
   group: vercel-${{ github.ref }}
@@ -47,7 +48,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   deploy-production:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.VERCEL_TOKEN != ''
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && secrets.VERCEL_TOKEN != ''
     runs-on: ubuntu-latest
 
     steps:

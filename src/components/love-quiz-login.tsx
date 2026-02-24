@@ -151,12 +151,18 @@ export function LoveQuizLogin() {
       {showSplash && <HeartSplash />}
 
       <section className="auth-card quiz-card">
+        <img src="/cat.png" alt="two cats holding hands" className="quiz-cat-photo" />
+
+        <div className="quiz-heart">♥</div>
+
         <div className="quiz-progress">
           {QUESTIONS.map((_, i) => (
             <span
               key={i}
               className={`quiz-dot${i === currentIndex ? " quiz-dot-active" : i < currentIndex ? " quiz-dot-done" : ""}`}
-            />
+            >
+              {i < currentIndex || i === currentIndex ? "♥" : "♡"}
+            </span>
           ))}
         </div>
 
@@ -183,7 +189,7 @@ export function LoveQuizLogin() {
             <small className="quiz-hint">Hint: {question.hint}</small>
           ) : null}
 
-          <button type="submit">Check ✓</button>
+          <button type="submit">Check</button>
         </form>
       </section>
     </main>
