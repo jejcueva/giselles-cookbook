@@ -15,28 +15,34 @@ const QUESTIONS: QuizQuestion[] = [
   {
     id: "anniversary",
     prompt: "When is our anniversary?",
-    answer: "01/09/2026",
+    answer: "1",
+    //answer: "01/09/2026",
     hint: "",
     placeholder: "MM/DD/YYYY",
   },
   {
     id: "first-meet-place",
     prompt: "Where did we meet for the first time?",
-    answer: "Galaxy Theatre",
+    answer: "1",
+    //answer: "Galaxy Theatre",
+
     hint: "it is a case-sensitive.",
     placeholder: "name of the place",
   },
   {
     id: "first-meet-day",
     prompt: "What day did we first meet?",
-    answer: "09/15/2025",
+    //answer: "09/15/2025",
+    answer: "1",
+
     hint: "",
     placeholder: "MM/DD/YYYY",
   },
   {
     id: "confession-date",
     prompt: "When did we confess we liked each other?",
-    answer: "01/02/2026",
+    //answer: "01/02/2026",
+    answer: "1",
     hint: "",
     placeholder: "MM/DD/YYYY",
   },
@@ -44,6 +50,8 @@ const QUESTIONS: QuizQuestion[] = [
     id: "like-you",
     prompt: "How much do I like you?",
     answer: "I LOVE YOU",
+    //answer: "1",
+
     hint: "are you serious i like you more than that. I L--E YOU",
     placeholder: "how much?",
   },

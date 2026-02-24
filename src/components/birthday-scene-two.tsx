@@ -7,7 +7,7 @@ type BirthdaySceneTwoProps = {
   onComplete: () => void;
 };
 
-const CONFETTI_COLORS = ["#f2b8c6", "#a8bfa0", "#a67b5b", "#f9d4dd", "#d4a57b"];
+const CONFETTI_COLORS = ["#4afd00", "#ffffff", "#4afd00", "#ffffff", "#4afd00"];
 
 function fireConfetti() {
   const defaults = {
@@ -51,7 +51,7 @@ export function BirthdaySceneTwo({ onComplete }: BirthdaySceneTwoProps) {
       className={`birthday-screen ${fadingOut ? "birthday-screen-fade-out" : ""}`}
       onClick={handleClick}
     >
-      <h1 className="birthday-title">Happy Birthday, Jizzy!</h1>
+      <h1 className="birthday-title">happy birthday baby, i love you so much</h1>
     </main>
   );
 }
