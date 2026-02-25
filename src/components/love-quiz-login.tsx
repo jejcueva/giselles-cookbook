@@ -49,8 +49,8 @@ const QUESTIONS: QuizQuestion[] = [
   {
     id: "like-you",
     prompt: "How much do I like you?",
-    answer: "I LOVE YOU",
-    //answer: "1",
+    //answer: "I LOVE YOU",
+    answer: "1",
 
     hint: "are you serious i like you more than that. I L--E YOU",
     placeholder: "how much?",
