@@ -76,10 +76,10 @@ export function AppShell({ children }: AppShellProps) {
   }, [searchQuery]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (mounted && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router]);
 
   if (!mounted || !isAuthenticated) {
     return (

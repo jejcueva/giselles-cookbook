@@ -1,15 +1,19 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { IMPORT_PREFILL_KEY } from "@/components/new-recipe-modal";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Ingredient = { name: string; amount: string; unit: string };
 type Category = { id: string; name: string; emoji: string | null };
 
 export default function NewRecipePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isManual = searchParams.get("manual") === "1";
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
@@ -77,6 +81,45 @@ export default function NewRecipePage() {
       if (data) setCategories(data);
     }
     fetchCategories();
+  }, []);
+
+  // Prefill from URL import (modal stores in sessionStorage before redirecting here)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = sessionStorage.getItem(IMPORT_PREFILL_KEY);
+    if (!raw) return;
+    try {
+      const prefill = JSON.parse(raw) as {
+        title?: string;
+        ingredients?: Ingredient[];
+        instructions?: string[];
+        cookTime?: number | null;
+        prepTime?: number | null;
+        servings?: number | null;
+        calories?: number | null;
+        protein?: number | null;
+        carbs?: number | null;
+        fat?: number | null;
+        imageUrl?: string | null;
+        sourceUrl?: string;
+      };
+      sessionStorage.removeItem(IMPORT_PREFILL_KEY);
+      if (prefill.title) setTitle(prefill.title);
+      if (prefill.sourceUrl) setSourceUrl(prefill.sourceUrl);
+      if (prefill.ingredients?.length) setIngredients(prefill.ingredients);
+      if (prefill.instructions?.length) setInstructions(prefill.instructions);
+      else if (prefill.instructions && prefill.instructions.length === 0) setInstructions([""]);
+      if (prefill.cookTime != null) setCookTime(String(prefill.cookTime));
+      if (prefill.prepTime != null) setPrepTime(String(prefill.prepTime));
+      if (prefill.servings != null) setServings(String(prefill.servings));
+      if (prefill.calories != null) setCalories(String(prefill.calories));
+      if (prefill.protein != null) setProtein(String(prefill.protein));
+      if (prefill.carbs != null) setCarbs(String(prefill.carbs));
+      if (prefill.fat != null) setFat(String(prefill.fat));
+      if (prefill.imageUrl) setCoverPreview(prefill.imageUrl);
+    } catch {
+      sessionStorage.removeItem(IMPORT_PREFILL_KEY);
+    }
   }, []);
 
   async function createCategory() {
@@ -159,11 +202,13 @@ export default function NewRecipePage() {
 
   // Submit
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
     setSaving(true);
+    setSaveError("");
 
     try {
       let coverImageUrl: string | null = null;
@@ -207,7 +252,7 @@ export default function NewRecipePage() {
         .single();
 
       if (error || !recipe) {
-        alert("Failed to save recipe");
+        setSaveError("Failed to save recipe. Please try again.");
         setSaving(false);
         return;
       }
@@ -227,7 +272,7 @@ export default function NewRecipePage() {
 
       router.push(`/recipes/${recipe.id}`);
     } catch {
-      alert("Something went wrong");
+      setSaveError("Something went wrong. Please try again.");
       setSaving(false);
     }
   }
@@ -235,30 +280,38 @@ export default function NewRecipePage() {
   return (
     <AppShell>
       <div className="recipe-form-page">
+        <nav className="recipe-form-nav" aria-label="Breadcrumb">
+          <Link href="/recipes" className="recipe-form-back">← Back to recipes</Link>
+        </nav>
         <h1 className="section-title">Add New Recipe</h1>
+        {!isManual && (
+          <p className="recipe-form-subtitle">Import from a blog URL or fill in the form below.</p>
+        )}
 
         <form className="recipe-form" onSubmit={handleSubmit}>
-          <div className="import-section">
-            <label className="form-label">
-              Import from URL
-              <div className="import-row">
-                <input
-                  type="url"
-                  className="form-input"
-                  placeholder="Paste a recipe blog URL..."
-                  value={importUrl}
-                  onChange={(e) => setImportUrl(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleImport(); } }}
-                  style={{ flex: 1 }}
-                />
-                <button type="button" className="btn-primary" onClick={handleImport} disabled={importing || !importUrl.trim()} style={{ padding: "0.6rem 1.2rem" }}>
-                  {importing ? "Importing..." : "Import"}
-                </button>
-              </div>
-              {importError && <p className="import-error">{importError}</p>}
-            </label>
-            <div className="import-divider"><span>or fill in manually</span></div>
-          </div>
+          {!isManual && (
+            <div className="import-section">
+              <label className="form-label">
+                Import from URL
+                <div className="import-row">
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="Paste a recipe blog URL..."
+                    value={importUrl}
+                    onChange={(e) => setImportUrl(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleImport(); } }}
+                    style={{ flex: 1 }}
+                  />
+                  <button type="button" className="btn-primary" onClick={handleImport} disabled={importing || !importUrl.trim()} style={{ padding: "0.6rem 1.2rem" }}>
+                    {importing ? "Importing..." : "Import"}
+                  </button>
+                </div>
+                {importError && <p className="import-error">{importError}</p>}
+              </label>
+              <div className="import-divider"><span>or fill in manually</span></div>
+            </div>
+          )}
 
           <label className="form-label">
             Title *
@@ -509,21 +562,24 @@ export default function NewRecipePage() {
             />
           </label>
 
-          <label className="form-label">
-            Source URL
-            <input
-              type="url"
-              className="form-input"
-              value={sourceUrl}
-              onChange={(e) => setSourceUrl(e.target.value)}
-              placeholder="https://..."
-            />
-          </label>
+          {!isManual && (
+            <label className="form-label">
+              Source URL
+              <input
+                type="url"
+                className="form-input"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </label>
+          )}
 
+          {saveError && <p className="form-error" role="alert">{saveError}</p>}
           <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={() => router.back()}>
+            <Link href="/recipes" className="btn-secondary">
               Cancel
-            </button>
+            </Link>
             <button type="submit" className="btn-primary" disabled={saving || !title.trim()}>
               {saving ? "Saving..." : "Save Recipe"}
             </button>

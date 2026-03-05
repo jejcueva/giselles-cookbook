@@ -4,9 +4,19 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const SESSION_KEY = "cute-cookbook-authenticated";
-const VALID_USERNAME = "gisseleMyLove";
-const VALID_PASSWORD = "01092026";
-const WRONG_MESSAGE = "no nigga";
+const USERNAME_KEY = "cute-cookbook-username";
+
+/** Valid accounts: main (gisellemyluv) and test profile so first-login flag isn't affected. */
+const CREDENTIALS: Record<string, string> = {
+  gisellemyluv: "01092026",
+  test: "test",
+};
+
+const WRONG_MESSAGE = "Wrong username or password.";
+
+function birthdaySeenKey(user: string) {
+  return `has_seen_birthday_${user}`;
+}
 
 export function LoveQuizLogin() {
   const router = useRouter();
@@ -20,10 +30,13 @@ export function LoveQuizLogin() {
     event.preventDefault();
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    const normalized = username.trim().toLowerCase();
+    if (CREDENTIALS[normalized] === password) {
       localStorage.setItem(SESSION_KEY, "true");
-      const seenBirthday = localStorage.getItem("has_seen_birthday");
-      router.push(seenBirthday ? "/" : "/birthday");
+      localStorage.setItem(USERNAME_KEY, normalized);
+      const seenKey = birthdaySeenKey(normalized);
+      const hasSeenBirthday = localStorage.getItem(seenKey) === "true";
+      router.push(hasSeenBirthday ? "/" : "/birthday");
       return;
     }
 

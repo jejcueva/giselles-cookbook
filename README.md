@@ -16,6 +16,21 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Recipe import from URLs (optional)
+
+Some sites (e.g. Simply Recipes) block automated requests. To bypass that:
+
+1. Create a `.env.local` file **in the same folder as `package.json`** (the folder where you run `npm run dev`).
+2. Add your [ScraperAPI](https://www.scraperapi.com/) key:
+
+```bash
+SCRAPER_API_KEY=your_api_key_here
+```
+
+3. Restart the dev server.
+
+Free tier: 5,000 requests/month. If you still see "This site blocks import", the app isn’t seeing your key—check that `.env.local` is next to `package.json` and you restarted the server. You can confirm the proxy is used by checking the response header `X-ScraperAPI-Used: true` in the Network tab when an import succeeds.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

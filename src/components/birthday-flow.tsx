@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { BirthdaySceneTwo } from "@/components/birthday-scene-two";
 import { BirthdayLoveLetter } from "@/components/birthday-love-letter";
 
-const BIRTHDAY_SEEN_KEY = "has_seen_birthday";
+const USERNAME_KEY = "cute-cookbook-username";
+
+function birthdaySeenKey(user: string) {
+  return `has_seen_birthday_${user}`;
+}
 
 export function BirthdayFlow() {
   const router = useRouter();
@@ -22,7 +26,8 @@ export function BirthdayFlow() {
   const handleSceneTwoComplete = () => setScene(3);
 
   const handleLoveLetterComplete = () => {
-    localStorage.setItem(BIRTHDAY_SEEN_KEY, "true");
+    const user = typeof window !== "undefined" ? localStorage.getItem(USERNAME_KEY) || "gisellemyluv" : "gisellemyluv";
+    localStorage.setItem(birthdaySeenKey(user), "true");
     router.push("/");
   };
 

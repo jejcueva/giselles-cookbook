@@ -280,20 +280,20 @@ After login, Giselle lands on her personalized dashboard.
 - [ ] Create Supabase tables (profiles, recipes, categories, tags, photos)
 - [ ] Seed default "Desserts" category
 
-### 🟡 Phase 2: Birthday Experience + Dashboard (Mar 1 – Mar 5) — Week 2
+### 🟡 Phase 2: Birthday Experience + Dashboard (Mar 1 – Mar 5) — Week 2 ✅
 
 **Goal:** First-time birthday flow complete, dashboard functional.
 
-- [ ] Build birthday Scene 1: Two bears hugging (find/commission illustration, animate)
-- [ ] Build birthday Scene 2: "Happy Birthday, Jizzy!" with confetti
-- [ ] Build birthday Scene 3: Personal love letter page
-- [ ] Wire up `has_seen_birthday` flag
-- [ ] Add "revisit letter" link somewhere accessible
-- [ ] Build homepage dashboard layout
-- [ ] Recent recipes section (pulling from Supabase)
-- [ ] Favorites section
-- [ ] Category cards with navigation
-- [ ] Search bar (UI + basic filtering)
+- [x] Build birthday Scene 1: Two bears hugging (video animation)
+- [x] Build birthday Scene 2: "Happy Birthday, Jizzy!" with confetti
+- [x] Build birthday Scene 3: Personal love letter page (placeholder — content TBD)
+- [x] Wire up `has_seen_birthday` flag (localStorage)
+- [x] Add "revisit letter" link on dashboard
+- [x] Build homepage dashboard layout
+- [x] Recent recipes section (pulling from Supabase)
+- [x] Favorites section (pulling from Supabase)
+- [x] Category cards with navigation to `/categories/[id]`
+- [x] Search bar (UI + Supabase title-only filtering with dropdown)
 
 ### 🔵 Phase 3: Recipe CRUD + URL Import (Mar 6 – Mar 11) — Week 3
 
@@ -320,32 +320,75 @@ After login, Giselle lands on her personalized dashboard.
 - [ ] Category browse pages
 - [ ] Tag filtering
 
-### 🟣 Phase 4: Polish & Launch (Mar 12 – Mar 16) — Week 4
+### 🟣 Phase 4: Features & AI (Mar 12 – Mar 16) — Week 4
 
-**Goal:** Everything looks beautiful, feels smooth, and is ready to gift.
+**Goal:** Recipe import (IG + blog), AI assistant, holiday themes, and recipe sharing.
 
-- [ ] Responsive design pass (desktop-impressive + mobile-functional — this is a portfolio piece AND a kitchen tool)
-- [ ] Cottagecore visual polish (illustrations, textures, hover states, transitions)
-- [ ] Loading states + empty states (cute illustrations for "no recipes yet")
-- [ ] Micro-interactions (heart animation on favorite, subtle transitions)
-- [ ] Error handling + form validation
-- [ ] Test full flow end-to-end
+**Recipe Import (Instagram + Blog URLs):**
+- [ ] Unified "Import Recipe" button + modal with URL input
+- [ ] API route `/api/import-recipe` — fetch blog HTML, parse JSON-LD `schema.org/Recipe`
+- [ ] Fallback: send page text to AI if no JSON-LD found
+- [ ] Instagram flow: attempt oEmbed/scrape for caption, fallback textarea for paste
+- [ ] API route `/api/parse-recipe` — Gemma 3 27B via OpenRouter parses text into recipe JSON
+- [ ] Pre-fill Add Recipe form with parsed data, let her review/edit/save
+
+**AI Assistant (Gemma 3 27B via OpenRouter):**
+- [ ] Chat UI on `/ai-assistant` — message list + input box, cottagecore styled bubbles
+- [ ] API route `/api/chat` — receives messages, fetches her recipe titles from Supabase for context
+- [ ] System prompt: warm, friendly cooking assistant that knows her saved recipes
+- [ ] OpenRouter integration (`OPENROUTER_API_KEY` server-side env var)
+- [ ] No streaming for v1 — loading spinner while waiting
+
+**Holiday Themes + Custom Colors:**
+- [ ] Theme system: JS theme objects with CSS var overrides + decoration components
+- [ ] 7 themes: Default Cottagecore, Valentine's, St. Patrick's, Halloween, Thanksgiving, Christmas, New Year's
+- [ ] Decorative overlays per theme (floating hearts, snowflakes, leaves, etc.)
+- [ ] Custom primary color picker (row of swatches — pink, brown, green, lavender, etc.)
+- [ ] Theme stored in localStorage, applied on load via ThemeProvider
+- [ ] Settings page: theme preview cards + color picker
+
+**Recipe Sharing:**
+- [ ] "Share" button on recipe detail page
+- [ ] Public read-only page at `/share/[recipe-id]` — no auth required
+- [ ] Clean standalone layout (no AppShell), shows title, image, ingredients, instructions, nutrition
+- [ ] "Copy link" button copies URL to clipboard
+- [ ] Supabase RLS: public select policy for share route
+
+### 🌟 Phase 5: Polish & Launch (Post-Phase 4)
+
+**Goal:** Everything feels smooth on mobile and looks beautiful.
+
+**Mobile Responsiveness:**
+- [ ] Sidebar becomes bottom tab bar or hamburger drawer on mobile
+- [ ] Recipe cards stack in single column on small screens
+- [ ] Search bar goes full-width, topbar buttons scale down
+- [ ] Min 44px touch targets everywhere
+- [ ] Test on iPhone SE through iPad
+
+**Micro-interactions & Animations:**
+- [ ] Heart animation on favorite toggle (scale pop + color fill)
+- [ ] Loading skeletons replacing "Loading..." text
+- [ ] Subtle page transition fades
+- [ ] Button press feedback (scale down on active)
+- [ ] Search dropdown slide-down animation
+
+**Final Polish:**
 - [ ] Write her love letter 💌
-- [ ] Find/create the two bears hugging illustration
+- [ ] Error handling + form validation pass
+- [ ] Test full flow end-to-end
 - [ ] Final QA on mobile + desktop
-- [ ] Set up custom domain (optional — e.g., jizzyscookbook.com or similar)
+- [ ] Set up custom domain (optional)
 
-### 🌟 Phase 5: Stretch Goals (Post-Launch / V2)
+### 🎁 Future Ideas (V2+)
 
-- [ ] AI recipe parsing from pasted text (Instagram captions, etc.)
 - [ ] Meal planning / weekly menu
 - [ ] Grocery list generator from selected recipes
 - [ ] Auto-calculate macros from ingredients (nutrition API integration)
 - [ ] Print-friendly recipe view
 - [ ] Dark mode (cozy evening cooking vibes)
-- [ ] Recipe sharing (if she ever wants to share individual recipes)
 - [ ] Import from other recipe apps
 - [ ] Cooking timers within recipe steps
+- [ ] Streaming AI responses
 
 ---
 
@@ -354,10 +397,12 @@ After login, Giselle lands on her personalized dashboard.
 1. **No traditional auth** — The quiz IS the login. Keep it simple. One user, one session.
 2. **Mobile-first** — She'll most likely use this in the kitchen on her phone. Prioritize mobile UX.
 3. **Portfolio-ready desktop design** — This is also a resume/portfolio piece, so the desktop experience needs to look polished and professional. Design responsive-first: impressive on desktop, fully functional on mobile.
-3. **Supabase Storage for images** — Simple, integrated, generous free tier.
-4. **The birthday experience is a one-time gift moment** — Make it special. Don't rush it.
-5. **Blog URL scraping in MVP** — Most recipe blogs use JSON-LD structured data, making this reliable and achievable. AI caption parsing can wait for V2.
-6. **The love letter matters** — Take your time writing it. This is the emotional core of the gift.
+4. **Supabase Storage for images** — Simple, integrated, generous free tier.
+5. **The birthday experience is a one-time gift moment** — Make it special. Don't rush it.
+6. **Blog URL scraping in MVP** — Most recipe blogs use JSON-LD structured data, making this reliable and achievable.
+7. **AI via OpenRouter** — Using Gemma 3 27B (free tier) for recipe parsing and chat assistant.
+8. **Holiday themes** — Manual selection in settings. CSS var swaps + lightweight decorative overlays.
+9. **The love letter matters** — Take your time writing it. This is the emotional core of the gift.
 
 ---
 
