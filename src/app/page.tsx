@@ -231,14 +231,17 @@ export default function Home() {
         ) : (
           <div className="recipe-grid">
             {recipes.map((recipe) => (
-              <article key={recipe.id} className="recipe-card">
+              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card" style={{ textDecoration: "none" }}>
+                {recipe.cover_image_url && (
+                  <img src={recipe.cover_image_url} alt={recipe.title} className="recipe-card-img" />
+                )}
                 <div className="recipe-info">
                   <span className="recipe-name">{recipe.title}</span>
                   {recipe.category_name && (
                     <span className="recipe-tag">{recipe.category_name}</span>
                   )}
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
@@ -255,9 +258,9 @@ export default function Home() {
         ) : (
           <div className="favorites-row">
             {favorites.map((fav) => (
-              <article key={fav.id} className="favorite-card">
+              <Link key={fav.id} href={`/recipes/${fav.id}`} className="favorite-card" style={{ textDecoration: "none" }}>
                 <span className="favorite-name">{fav.title}</span>
-              </article>
+              </Link>
             ))}
           </div>
         )}
