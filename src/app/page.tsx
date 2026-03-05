@@ -2,7 +2,14 @@
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 import { useState, useEffect } from "react";
+
+type Category = {
+  id: string;
+  name: string;
+  emoji: string | null;
+};
 
 type Recipe = {
   id: string;
@@ -126,6 +133,7 @@ export default function Home() {
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loadingFavorites, setLoadingFavorites] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     setTime(getTimeOfDay());
@@ -173,6 +181,15 @@ export default function Home() {
       setLoadingFavorites(false);
     }
     fetchFavorites();
+
+    async function fetchCategories() {
+      const { data } = await supabase
+        .from("categories")
+        .select("id, name, emoji")
+        .order("name");
+      if (data) setCategories(data);
+    }
+    fetchCategories();
   }, []);
 
   return (
@@ -244,6 +261,18 @@ export default function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="dashboard-section">
+        <h2 className="section-title">Categories</h2>
+        <div className="category-grid">
+          {categories.map((cat) => (
+            <Link key={cat.id} href={`/categories/${cat.id}`} className="category-card">
+              {cat.emoji && <span className="category-emoji">{cat.emoji}</span>}
+              <span className="category-label">{cat.name}</span>
+            </Link>
+          ))}
+        </div>
       </section>
     </AppShell>
   );
