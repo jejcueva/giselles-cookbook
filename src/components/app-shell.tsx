@@ -1,5 +1,6 @@
 "use client";
 
+import { NewRecipeModal } from "@/components/new-recipe-modal";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -36,13 +37,14 @@ export function AppShell({ children }: AppShellProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [isAuthenticated] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
+  const [newRecipeModalOpen, setNewRecipeModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    return localStorage.getItem(SESSION_KEY) === "true";
-  });
+  useEffect(() => {
+    setMounted(true);
+    setIsAuthenticated(localStorage.getItem(SESSION_KEY) === "true");
+  }, []);
 
   useEffect(() => {
     if (searchQuery.length < 2) {
@@ -79,7 +81,7 @@ export function AppShell({ children }: AppShellProps) {
     }
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) {
+  if (!mounted || !isAuthenticated) {
     return (
       <div className="loading-state">
         <p>Checking session...</p>
@@ -183,10 +185,21 @@ export function AppShell({ children }: AppShellProps) {
               </div>
             )}
           </div>
-          <Link href="/recipes/new" className="btn-primary">+ New Recipe</Link>
+          <button
+            type="button"
+            className="btn-primary topbar-new-recipe"
+            onClick={() => setNewRecipeModalOpen(true)}
+            aria-label="Add new recipe"
+          >
+            + New Recipe
+          </button>
         </header>
 
         <main className="content">{children}</main>
+        <NewRecipeModal
+          open={newRecipeModalOpen}
+          onClose={() => setNewRecipeModalOpen(false)}
+        />
       </div>
     </div>
   );
