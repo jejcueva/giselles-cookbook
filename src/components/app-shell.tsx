@@ -170,10 +170,10 @@ export function AppShell({ children }: AppShellProps) {
             {searchOpen && searchResults.length > 0 && (
               <div className="search-dropdown">
                 {searchResults.map((r) => (
-                  <div key={r.id} className="search-result">
+                  <Link key={r.id} href={`/recipes/${r.id}`} className="search-result" style={{ textDecoration: "none", display: "block" }}>
                     <span>{r.title}</span>
                     {r.category_name && <span className="search-result-tag">{r.category_name}</span>}
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -183,7 +183,7 @@ export function AppShell({ children }: AppShellProps) {
               </div>
             )}
           </div>
-          <button type="button">+ New Recipe</button>
+          <Link href="/recipes/new" className="btn-primary">+ New Recipe</Link>
         </header>
 
         <main className="content">{children}</main>
