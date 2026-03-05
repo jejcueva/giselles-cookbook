@@ -1,10 +1,12 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
-import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type Ingredient = { name: string; amount: string; unit: string };
+type Category = { id: string; name: string; emoji: string | null };
 
 export default function NewRecipePage() {
   const router = useRouter();
@@ -49,6 +51,59 @@ export default function NewRecipePage() {
     const updated = [...instructions];
     updated[index] = value;
     setInstructions(updated);
+  }
+
+  // Macros
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
+
+  // Categories
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryEmoji, setNewCategoryEmoji] = useState("");
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const { data } = await supabase.from("categories").select("id, name, emoji").order("name");
+      if (data) setCategories(data);
+    }
+    fetchCategories();
+  }, []);
+
+  async function createCategory() {
+    if (!newCategoryName.trim()) return;
+    const { data } = await supabase
+      .from("categories")
+      .insert({ name: newCategoryName.trim(), emoji: newCategoryEmoji.trim() || null })
+      .select("id, name, emoji")
+      .single();
+    if (data) {
+      setCategories([...categories, data]);
+      setSelectedCategoryId(data.id);
+      setShowNewCategory(false);
+      setNewCategoryName("");
+      setNewCategoryEmoji("");
+    }
+  }
+
+  // Tags
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+
+  function addTag() {
+    const trimmed = tagInput.trim().toLowerCase();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+    }
+    setTagInput("");
+  }
+
+  function removeTag(tag: string) {
+    setTags(tags.filter((t) => t !== tag));
   }
 
   return (
@@ -166,6 +221,111 @@ export default function NewRecipePage() {
               + Add Step
             </button>
           </fieldset>
+
+          <fieldset className="form-fieldset">
+            <legend className="form-legend">Nutrition (per serving)</legend>
+            <div className="macros-grid">
+              <label className="form-label">
+                Calories
+                <input type="number" className="form-input" value={calories} onChange={(e) => setCalories(e.target.value)} min="0" />
+              </label>
+              <label className="form-label">
+                Protein (g)
+                <input type="number" className="form-input" value={protein} onChange={(e) => setProtein(e.target.value)} min="0" step="0.1" />
+              </label>
+              <label className="form-label">
+                Carbs (g)
+                <input type="number" className="form-input" value={carbs} onChange={(e) => setCarbs(e.target.value)} min="0" step="0.1" />
+              </label>
+              <label className="form-label">
+                Fat (g)
+                <input type="number" className="form-input" value={fat} onChange={(e) => setFat(e.target.value)} min="0" step="0.1" />
+              </label>
+            </div>
+          </fieldset>
+
+          <div className="form-label">
+            Category
+            <div className="category-select-row">
+              <select
+                className="form-select"
+                value={selectedCategoryId}
+                onChange={(e) => {
+                  if (e.target.value === "__new__") {
+                    setShowNewCategory(true);
+                    setSelectedCategoryId("");
+                  } else {
+                    setSelectedCategoryId(e.target.value);
+                    setShowNewCategory(false);
+                  }
+                }}
+              >
+                <option value="">None</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.emoji ? `${cat.emoji} ` : ""}{cat.name}
+                  </option>
+                ))}
+                <option value="__new__">+ New Category</option>
+              </select>
+            </div>
+            {showNewCategory && (
+              <div className="new-category-row">
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Emoji"
+                  value={newCategoryEmoji}
+                  onChange={(e) => setNewCategoryEmoji(e.target.value)}
+                  style={{ flex: "0 0 64px" }}
+                />
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="btn-primary" onClick={createCategory} style={{ padding: "0.5rem 1rem" }}>
+                  Add
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="form-label">
+            Tags
+            <div className="tag-input-row">
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Add a tag and press Enter"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+                style={{ flex: 1 }}
+              />
+              <button type="button" className="btn-secondary" onClick={addTag} style={{ padding: "0.5rem 1rem" }}>
+                Add
+              </button>
+            </div>
+            {tags.length > 0 && (
+              <div className="tag-list">
+                {tags.map((tag) => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <button type="button" className="tag-remove" onClick={() => removeTag(tag)}>×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           <label className="form-label">
             Notes
