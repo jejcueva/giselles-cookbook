@@ -12,13 +12,6 @@ type Recipe = {
   category_name: string | null;
 };
 
-const FAVORITES = [
-  "Honey Toast",
-  "Miso Ramen",
-  "Blueberry Muffins",
-  "Matcha Latte",
-];
-
 function getTimeOfDay() {
   const hour = new Date().getHours();
   if (hour < 12) return "morning";
@@ -131,6 +124,8 @@ export default function Home() {
   const [time, setTime] = useState("morning");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
+  const [favorites, setFavorites] = useState<Recipe[]>([]);
+  const [loadingFavorites, setLoadingFavorites] = useState(true);
 
   useEffect(() => {
     setTime(getTimeOfDay());
@@ -156,6 +151,28 @@ export default function Home() {
       setLoadingRecipes(false);
     }
     fetchRecent();
+
+    async function fetchFavorites() {
+      const { data } = await supabase
+        .from("recipes")
+        .select("id, title, cover_image_url")
+        .eq("is_favorite", true)
+        .limit(6);
+
+      if (data) {
+        setFavorites(
+          data.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            cover_image_url: r.cover_image_url,
+            created_at: "",
+            category_name: null,
+          }))
+        );
+      }
+      setLoadingFavorites(false);
+    }
+    fetchFavorites();
   }, []);
 
   return (
@@ -212,13 +229,21 @@ export default function Home() {
 
       <section className="dashboard-section">
         <h2 className="section-title">Favorites</h2>
-        <div className="favorites-row">
-          {FAVORITES.map((name) => (
-            <article key={name} className="favorite-card">
-              <span className="favorite-name">{name}</span>
-            </article>
-          ))}
-        </div>
+        {loadingFavorites ? (
+          <p className="empty-state-text">Loading...</p>
+        ) : favorites.length === 0 ? (
+          <div className="empty-state">
+            <p className="empty-state-text">Heart a recipe to see it here</p>
+          </div>
+        ) : (
+          <div className="favorites-row">
+            {favorites.map((fav) => (
+              <article key={fav.id} className="favorite-card">
+                <span className="favorite-name">{fav.title}</span>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </AppShell>
   );
