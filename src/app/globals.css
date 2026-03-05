@@ -510,3 +510,179 @@ p {
   text-align: center;
 }
 
+/* ── Section titles ──────────────────────────────────── */
+
+.section-title {
+  color: var(--color-text);
+  font-family: var(--font-playfair), serif;
+  font-size: 1.5rem;
+}
+
+.dashboard-section {
+  margin-bottom: 1.5rem;
+}
+
+/* ── Recipe form ─────────────────────────────────────── */
+
+.recipe-form-page {
+  max-width: 720px;
+}
+
+.recipe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.form-label {
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 0.35rem;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.92rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.form-row-3 {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 0.25rem;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.6rem 1.5rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #fef0f3;
+}
+
+/* ── Dynamic list rows ───────────────────────────────── */
+
+.form-fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.form-legend {
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.ingredient-row,
+.instruction-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon-remove {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-size: 1.1rem;
+  height: 28px;
+  line-height: 1;
+  width: 28px;
+}
+
+.btn-icon-remove:hover {
+  background: #fde8e8;
+  border-color: #e8a0a0;
+  color: #c44;
+}
+
+.btn-add-row {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.3rem 0;
+}
+
+.btn-add-row:hover {
+  text-decoration: underline;
+}
+
+.step-number {
+  color: var(--color-secondary);
+  font-size: 0.88rem;
+  font-weight: 700;
+  min-width: 24px;
+}
+

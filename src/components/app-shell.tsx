@@ -81,7 +81,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="main-column">
         <header className="topbar">
           <input type="search" placeholder="Search recipes" aria-label="Search recipes" />
-          <button type="button">+ New Recipe</button>
+          <Link href="/recipes/new" className="btn-primary">+ New Recipe</Link>
         </header>
 
         <main className="content">{children}</main>
