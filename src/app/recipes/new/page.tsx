@@ -90,6 +90,17 @@ export default function NewRecipePage() {
     }
   }
 
+  // Photo
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  }
+
   // Tags
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -106,12 +117,87 @@ export default function NewRecipePage() {
     setTags(tags.filter((t) => t !== tag));
   }
 
+  // Submit
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    setSaving(true);
+
+    try {
+      let coverImageUrl: string | null = null;
+      if (coverFile) {
+        const ext = coverFile.name.split(".").pop();
+        const path = `covers/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("recipe-photos")
+          .upload(path, coverFile);
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage.from("recipe-photos").getPublicUrl(path);
+          coverImageUrl = urlData.publicUrl;
+        }
+      }
+
+      // If no file but we have an external preview URL (from import), use it
+      if (!coverImageUrl && coverPreview && !coverFile) {
+        coverImageUrl = coverPreview;
+      }
+
+      const { data: recipe, error } = await supabase
+        .from("recipes")
+        .insert({
+          title: title.trim(),
+          ingredients: ingredients.filter((ing) => ing.name.trim()),
+          instructions: instructions
+            .filter((s) => s.trim())
+            .map((text, i) => ({ step_number: i + 1, text })),
+          notes: notes.trim() || null,
+          source_url: sourceUrl.trim() || null,
+          cook_time: cookTime ? parseInt(cookTime) : null,
+          prep_time: prepTime ? parseInt(prepTime) : null,
+          servings: servings ? parseInt(servings) : null,
+          calories: calories ? parseInt(calories) : null,
+          protein: protein ? parseFloat(protein) : null,
+          carbs: carbs ? parseFloat(carbs) : null,
+          fat: fat ? parseFloat(fat) : null,
+          cover_image_url: coverImageUrl,
+        })
+        .select("id")
+        .single();
+
+      if (error || !recipe) {
+        alert("Failed to save recipe");
+        setSaving(false);
+        return;
+      }
+
+      if (selectedCategoryId) {
+        await supabase.from("recipe_categories").insert({
+          recipe_id: recipe.id,
+          category_id: selectedCategoryId,
+        });
+      }
+
+      if (tags.length > 0) {
+        await supabase.from("recipe_tags").insert(
+          tags.map((tag) => ({ recipe_id: recipe.id, tag }))
+        );
+      }
+
+      router.push(`/recipes/${recipe.id}`);
+    } catch {
+      alert("Something went wrong");
+      setSaving(false);
+    }
+  }
+
   return (
     <AppShell>
       <div className="recipe-form-page">
         <h1 className="section-title">Add New Recipe</h1>
 
-        <form className="recipe-form" onSubmit={(e) => e.preventDefault()}>
+        <form className="recipe-form" onSubmit={handleSubmit}>
           <label className="form-label">
             Title *
             <input
@@ -123,6 +209,29 @@ export default function NewRecipePage() {
               required
             />
           </label>
+
+          <div className="form-label">
+            Cover Photo
+            <div className="photo-upload-area">
+              {coverPreview ? (
+                <div className="photo-preview-wrap">
+                  <img src={coverPreview} alt="Cover preview" className="photo-preview" />
+                  <button
+                    type="button"
+                    className="btn-icon-remove photo-remove"
+                    onClick={() => { setCoverFile(null); setCoverPreview(null); }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <label className="photo-drop-label">
+                  <span>Click to upload a photo</span>
+                  <input type="file" accept="image/*" onChange={handleCoverSelect} hidden />
+                </label>
+              )}
+            </div>
+          </div>
 
           <div className="form-row-3">
             <label className="form-label">
@@ -353,8 +462,8 @@ export default function NewRecipePage() {
             <button type="button" className="btn-secondary" onClick={() => router.back()}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled>
-              Save Recipe
+            <button type="submit" className="btn-primary" disabled={saving || !title.trim()}>
+              {saving ? "Saving..." : "Save Recipe"}
             </button>
           </div>
         </form>

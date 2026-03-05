@@ -758,3 +758,43 @@ p {
   color: #c44;
 }
 
+/* ── Photo upload ────────────────────────────────────── */
+
+.photo-upload-area {
+  border: 2px dashed var(--color-border);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.photo-drop-label {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  min-height: 160px;
+  padding: 1.5rem;
+}
+
+.photo-drop-label span {
+  color: var(--color-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.photo-preview-wrap {
+  position: relative;
+}
+
+.photo-preview {
+  display: block;
+  max-height: 280px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.photo-remove {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
