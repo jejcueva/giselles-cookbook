@@ -694,6 +694,47 @@ p {
   white-space: nowrap;
 }
 
+/* ── Search dropdown ──────────────────────────────────── */
+
+.search-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.search-wrapper input {
+  width: 100%;
+}
+
+.search-dropdown {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  box-shadow: 0 8px 24px rgba(74, 55, 40, 0.12);
+  left: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 50;
+}
+
+.search-result {
+  color: var(--color-text);
+  font-size: 0.88rem;
+  padding: 0.6rem 0.75rem;
+  transition: background 0.1s;
+}
+
+.search-result:hover {
+  background: #fef0f3;
+}
+
+.search-no-results {
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
 /* ── Love letter scene ────────────────────────────────── */
 
 @keyframes letter-fade-in {
