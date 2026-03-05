@@ -274,6 +274,18 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <section className="dashboard-section">
+        <h2 className="section-title">Your Birthday Letter</h2>
+        <div className="empty-state">
+          <div>
+            <p className="empty-state-text">Want to reread your birthday love letter?</p>
+            <Link href="/letter" className="letter-link">
+              Read your letter &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
     </AppShell>
   );
 }

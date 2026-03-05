@@ -11,6 +11,12 @@ type AppShellProps = {
 
 const SESSION_KEY = "cute-cookbook-authenticated";
 
+type SearchResult = {
+  id: string;
+  title: string;
+  category_name: string | null;
+};
+
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard" },
   { href: "/recipes", label: "Recipes" },
@@ -28,7 +34,7 @@ export function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ id: string; title: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isAuthenticated] = useState(() => {
     if (typeof window === "undefined") {
@@ -48,12 +54,18 @@ export function AppShell({ children }: AppShellProps) {
     const timeout = setTimeout(async () => {
       const { data } = await supabase
         .from("recipes")
-        .select("id, title")
+        .select("id, title, recipe_categories ( categories ( name ) )")
         .ilike("title", `%${searchQuery}%`)
         .limit(8);
 
       if (data) {
-        setSearchResults(data);
+        setSearchResults(
+          data.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            category_name: r.recipe_categories?.[0]?.categories?.name ?? null,
+          }))
+        );
         setSearchOpen(true);
       }
     }, 300);
@@ -159,7 +171,8 @@ export function AppShell({ children }: AppShellProps) {
               <div className="search-dropdown">
                 {searchResults.map((r) => (
                   <div key={r.id} className="search-result">
-                    {r.title}
+                    <span>{r.title}</span>
+                    {r.category_name && <span className="search-result-tag">{r.category_name}</span>}
                   </div>
                 ))}
               </div>

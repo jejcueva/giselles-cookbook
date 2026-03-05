@@ -724,6 +724,10 @@ p {
   font-size: 0.88rem;
   padding: 0.6rem 0.75rem;
   transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .search-result:hover {
@@ -733,6 +737,14 @@ p {
 .search-no-results {
   color: var(--color-secondary);
   font-style: italic;
+}
+
+.search-result-tag {
+  color: var(--color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* ── Love letter scene ────────────────────────────────── */
@@ -789,6 +801,18 @@ p {
   min-height: 2.7rem;
   padding: 0.65rem 0.9rem;
   width: 100%;
+}
+
+.letter-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: #e03c3c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.letter-link:hover {
+  text-decoration: underline;
 }
 
 /* ─────────────────────────────────────────────────────── */
