@@ -59,6 +59,11 @@ export default function NewRecipePage() {
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
 
+  // Import from URL
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+
   // Categories
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -115,6 +120,41 @@ export default function NewRecipePage() {
 
   function removeTag(tag: string) {
     setTags(tags.filter((t) => t !== tag));
+  }
+
+  // Import handler
+  async function handleImport() {
+    if (!importUrl.trim()) return;
+    setImporting(true);
+    setImportError("");
+    try {
+      const res = await fetch("/api/scrape-recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setImportError(data.error || "Failed to import");
+        setImporting(false);
+        return;
+      }
+      if (data.title) setTitle(data.title);
+      if (data.ingredients?.length) setIngredients(data.ingredients);
+      if (data.instructions?.length) setInstructions(data.instructions);
+      if (data.cookTime) setCookTime(String(data.cookTime));
+      if (data.prepTime) setPrepTime(String(data.prepTime));
+      if (data.servings) setServings(String(data.servings));
+      if (data.calories) setCalories(String(data.calories));
+      if (data.protein) setProtein(String(data.protein));
+      if (data.carbs) setCarbs(String(data.carbs));
+      if (data.fat) setFat(String(data.fat));
+      setSourceUrl(importUrl.trim());
+      if (data.imageUrl) setCoverPreview(data.imageUrl);
+    } catch {
+      setImportError("Something went wrong");
+    }
+    setImporting(false);
   }
 
   // Submit
@@ -198,6 +238,28 @@ export default function NewRecipePage() {
         <h1 className="section-title">Add New Recipe</h1>
 
         <form className="recipe-form" onSubmit={handleSubmit}>
+          <div className="import-section">
+            <label className="form-label">
+              Import from URL
+              <div className="import-row">
+                <input
+                  type="url"
+                  className="form-input"
+                  placeholder="Paste a recipe blog URL..."
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleImport(); } }}
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="btn-primary" onClick={handleImport} disabled={importing || !importUrl.trim()} style={{ padding: "0.6rem 1.2rem" }}>
+                  {importing ? "Importing..." : "Import"}
+                </button>
+              </div>
+              {importError && <p className="import-error">{importError}</p>}
+            </label>
+            <div className="import-divider"><span>or fill in manually</span></div>
+          </div>
+
           <label className="form-label">
             Title *
             <input
