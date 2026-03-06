@@ -8,8 +8,8 @@ type Recipe = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  ingredients: any[];
-  instructions: any[];
+  ingredients: IngredientItem[];
+  instructions: InstructionItem[];
   notes: string | null;
   cook_time: number | null;
   prep_time: number | null;
@@ -19,6 +19,16 @@ type Recipe = {
   carbs: number | null;
   fat: number | null;
 };
+
+type IngredientItem = {
+  name?: string;
+  amount?: string;
+  unit?: string;
+} | string;
+
+type InstructionItem = {
+  text?: string;
+} | string;
 
 export default function SharePage() {
   const params = useParams();
@@ -88,11 +98,11 @@ export default function SharePage() {
           <div className="recipe-detail-section">
             <h2 className="recipe-detail-section-title">Ingredients</h2>
             <ul className="share-ingredient-list">
-              {recipe.ingredients.map((ing: any, i: number) => (
+              {recipe.ingredients.map((ingredient, i) => (
                 <li key={i}>
-                  {ing.amount && `${ing.amount} `}
-                  {ing.unit && `${ing.unit} `}
-                  {ing.name || ing}
+                  {typeof ingredient !== "string" && ingredient.amount && `${ingredient.amount} `}
+                  {typeof ingredient !== "string" && ingredient.unit && `${ingredient.unit} `}
+                  {typeof ingredient === "string" ? ingredient : ingredient.name || ""}
                 </li>
               ))}
             </ul>
@@ -103,8 +113,10 @@ export default function SharePage() {
           <div className="recipe-detail-section">
             <h2 className="recipe-detail-section-title">Instructions</h2>
             <ol className="instruction-list">
-              {recipe.instructions.map((step: any, i: number) => (
-                <li key={i} className="instruction-step">{step.text || step}</li>
+              {recipe.instructions.map((step, i) => (
+                <li key={i} className="instruction-step">
+                  {typeof step === "string" ? step : step.text || ""}
+                </li>
               ))}
             </ol>
           </div>

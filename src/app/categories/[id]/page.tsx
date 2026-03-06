@@ -17,6 +17,10 @@ type Category = {
   emoji: string | null;
 };
 
+type RecipeCategoryRow = {
+  recipes: Recipe | null;
+};
+
 export default function CategoryDetailPage() {
   const params = useParams();
   const categoryId = params.id as string;
@@ -37,9 +41,9 @@ export default function CategoryDetailPage() {
       if (catResult.data) setCategory(catResult.data);
       if (recipesResult.data) {
         setRecipes(
-          recipesResult.data
-            .map((rc: any) => rc.recipes)
-            .filter(Boolean)
+          (recipesResult.data as RecipeCategoryRow[])
+            .map((row) => row.recipes)
+            .filter((recipe): recipe is Recipe => recipe !== null)
         );
       }
       setLoading(false);

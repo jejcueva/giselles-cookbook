@@ -12,6 +12,15 @@ type Recipe = {
   category_name: string | null;
 };
 
+type FavoriteRecipeRow = {
+  id: string;
+  title: string;
+  cover_image_url: string | null;
+  recipe_categories:
+    | Array<{ categories: { name: string | null } | null } | null>
+    | null;
+};
+
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +33,15 @@ export default function FavoritesPage() {
         .eq("is_favorite", true)
         .order("created_at", { ascending: false });
       if (data) {
-        setFavorites(data.map((r: any) => ({
-          id: r.id, title: r.title, cover_image_url: r.cover_image_url,
-          category_name: r.recipe_categories?.[0]?.categories?.name ?? null,
-        })));
+        const rows = data as FavoriteRecipeRow[];
+        setFavorites(
+          rows.map((recipe) => ({
+            id: recipe.id,
+            title: recipe.title,
+            cover_image_url: recipe.cover_image_url,
+            category_name: recipe.recipe_categories?.[0]?.categories?.name ?? null,
+          }))
+        );
       }
       setLoading(false);
     }

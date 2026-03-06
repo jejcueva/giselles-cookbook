@@ -530,7 +530,7 @@ p {
 .topbar .btn-primary.topbar-new-recipe {
   align-items: center;
   display: inline-flex;
-  flex: 1;
+  flex: 0 0 auto;
   justify-content: center;
   min-height: 2.2rem;
   padding: 0.45rem 1rem;
@@ -1446,6 +1446,7 @@ p {
 }
 
 .new-recipe-modal-actions {
+  align-items: center;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1461,9 +1462,12 @@ p {
   display: flex;
   font: inherit;
   gap: 0.75rem;
+  justify-content: center;
+  max-width: 16rem;
   padding: 1rem 1.25rem;
-  text-align: left;
+  text-align: center;
   transition: background var(--transition-snappy), border-color var(--transition-snappy), box-shadow var(--transition-snappy), transform var(--transition-snappy);
+  width: 100%;
 }
 
 .new-recipe-modal-option:hover {

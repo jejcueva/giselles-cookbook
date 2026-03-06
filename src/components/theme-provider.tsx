@@ -3,18 +3,26 @@
 import { useEffect, useState } from "react";
 import { getStoredTheme, getStoredCustomColor, applyTheme, applyCustomColor } from "@/lib/themes";
 
+function getInitialDecoration(): string {
+  if (typeof window === "undefined") {
+    return "none";
+  }
+
+  const theme = getStoredTheme();
+  const customColor = getStoredCustomColor();
+  return customColor ? "none" : theme.decoration;
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [decoration, setDecoration] = useState<string>("none");
+  const [decoration] = useState<string>(getInitialDecoration);
 
   useEffect(() => {
     const theme = getStoredTheme();
     applyTheme(theme);
-    setDecoration(theme.decoration);
 
     const customColor = getStoredCustomColor();
     if (customColor) {
       applyCustomColor(customColor);
-      setDecoration("none");
     }
   }, []);
 

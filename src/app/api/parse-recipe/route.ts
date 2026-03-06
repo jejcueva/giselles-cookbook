@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "google/gemma-3-27b-it:free";
+const MISSING_OPENROUTER_KEY_ERROR =
+  "Missing OPENROUTER_API_KEY. Add it to .env.local and restart the dev server.";
 
 export async function POST(req: NextRequest) {
-  if (!OPENROUTER_API_KEY) {
-    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+  const openRouterApiKey = process.env.OPENROUTER_API_KEY?.trim();
+
+  if (!openRouterApiKey) {
+    return NextResponse.json(
+      { error: MISSING_OPENROUTER_KEY_ERROR },
+      { status: 500 }
+    );
   }
 
   const { text } = await req.json();
@@ -35,7 +41,7 @@ Rules:
   const response = await fetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Authorization": `Bearer ${openRouterApiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://jizzyscookbook.com",
     },

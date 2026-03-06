@@ -19,6 +19,22 @@ type Recipe = {
   category_name: string | null;
 };
 
+type RecentRecipeRow = {
+  id: string;
+  title: string;
+  cover_image_url: string | null;
+  created_at: string;
+  recipe_categories:
+    | Array<{ categories: { name: string | null } | null } | null>
+    | null;
+};
+
+type FavoriteRecipeRow = {
+  id: string;
+  title: string;
+  cover_image_url: string | null;
+};
+
 function getTimeOfDay() {
   const hour = new Date().getHours();
   if (hour < 12) return "morning";
@@ -128,7 +144,7 @@ function SkyIcon({ time }: { time: string }) {
 }
 
 export default function Home() {
-  const [time, setTime] = useState("morning");
+  const [time] = useState(getTimeOfDay);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [favorites, setFavorites] = useState<Recipe[]>([]);
@@ -136,8 +152,6 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    setTime(getTimeOfDay());
-
     async function fetchRecent() {
       const { data } = await supabase
         .from("recipes")
@@ -146,13 +160,14 @@ export default function Home() {
         .limit(6);
 
       if (data) {
+        const rows = data as RecentRecipeRow[];
         setRecipes(
-          data.map((r: any) => ({
-            id: r.id,
-            title: r.title,
-            cover_image_url: r.cover_image_url,
-            created_at: r.created_at,
-            category_name: r.recipe_categories?.[0]?.categories?.name ?? null,
+          rows.map((recipe) => ({
+            id: recipe.id,
+            title: recipe.title,
+            cover_image_url: recipe.cover_image_url,
+            created_at: recipe.created_at,
+            category_name: recipe.recipe_categories?.[0]?.categories?.name ?? null,
           }))
         );
       }
@@ -168,11 +183,12 @@ export default function Home() {
         .limit(6);
 
       if (data) {
+        const rows = data as FavoriteRecipeRow[];
         setFavorites(
-          data.map((r: any) => ({
-            id: r.id,
-            title: r.title,
-            cover_image_url: r.cover_image_url,
+          rows.map((recipe) => ({
+            id: recipe.id,
+            title: recipe.title,
+            cover_image_url: recipe.cover_image_url,
             created_at: "",
             category_name: null,
           }))
