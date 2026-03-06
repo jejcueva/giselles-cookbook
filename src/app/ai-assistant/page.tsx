@@ -2,11 +2,104 @@
 
 import { AppShell } from "@/components/app-shell";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
+type RecipeData = {
+  title: string;
+  ingredients: { name: string; amount: string; unit: string }[];
+  instructions: string[];
+  cookTime: number | null;
+  prepTime: number | null;
+  servings: number | null;
+  calories: number | null;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+};
+
+const RECIPE_BLOCK_REGEX = /:::recipe\s*([\s\S]*?)\s*:::/;
+
+function parseRecipeBlock(content: string): { text: string; recipe: RecipeData | null } {
+  const match = content.match(RECIPE_BLOCK_REGEX);
+  if (!match) return { text: content, recipe: null };
+
+  const text = content.replace(RECIPE_BLOCK_REGEX, "").trim();
+  try {
+    const recipe = JSON.parse(match[1]) as RecipeData;
+    if (recipe.title && Array.isArray(recipe.ingredients) && Array.isArray(recipe.instructions)) {
+      return { text, recipe };
+    }
+  } catch {
+    // malformed JSON — show message normally
+  }
+  return { text: content, recipe: null };
+}
+
+function ChatBubble({ msg }: { msg: Message }) {
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  if (msg.role === "user") {
+    return <div className="chat-bubble chat-bubble-user">{msg.content}</div>;
+  }
+
+  const { text, recipe } = parseRecipeBlock(msg.content);
+
+  async function handleSave() {
+    if (!recipe || saveState === "saving" || saveState === "saved") return;
+    setSaveState("saving");
+
+    try {
+      const { error } = await supabase.from("recipes").insert({
+        title: recipe.title.trim(),
+        ingredients: recipe.ingredients.filter((ing) => ing.name.trim()),
+        instructions: recipe.instructions
+          .filter((s) => s.trim())
+          .map((stepText, i) => ({ step_number: i + 1, text: stepText })),
+        cook_time: recipe.cookTime,
+        prep_time: recipe.prepTime,
+        servings: recipe.servings,
+        calories: recipe.calories,
+        protein: recipe.protein,
+        carbs: recipe.carbs,
+        fat: recipe.fat,
+      });
+
+      if (error) {
+        setSaveState("error");
+      } else {
+        setSaveState("saved");
+      }
+    } catch {
+      setSaveState("error");
+    }
+  }
+
+  return (
+    <div className="chat-bubble chat-bubble-assistant">
+      {text}
+      {recipe && (
+        <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--color-border, #ebd8c8)" }}>
+          <button
+            className={saveState === "saved" ? "btn-secondary" : "btn-primary"}
+            onClick={handleSave}
+            disabled={saveState === "saving" || saveState === "saved"}
+            style={{ fontSize: "0.85rem", padding: "0.4rem 1rem" }}
+          >
+            {saveState === "idle" && "Save to My Recipes"}
+            {saveState === "saving" && "Saving..."}
+            {saveState === "saved" && "Saved!"}
+            {saveState === "error" && "Failed — Try Again"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -55,9 +148,7 @@ export default function AIAssistantPage() {
             </div>
           )}
           {messages.map((msg, i) => (
-            <div key={i} className={`chat-bubble chat-bubble-${msg.role}`}>
-              {msg.content}
-            </div>
+            <ChatBubble key={i} msg={msg} />
           ))}
           {loading && (
             <div className="chat-bubble chat-bubble-assistant chat-typing">
