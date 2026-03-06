@@ -1773,3 +1773,115 @@ p {
   width: 100%;
 }
 
+/* ── AI Chat ───────────────────────────────────────────── */
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  max-width: 720px;
+}
+
+.chat-messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+.chat-empty {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.chat-empty-title {
+  font-family: var(--font-playfair), serif;
+  font-size: 1.5rem;
+}
+
+.chat-empty-sub {
+  color: var(--color-secondary);
+  font-size: 0.92rem;
+  margin-top: 0.25rem;
+}
+
+.chat-bubble {
+  border-radius: 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  white-space: pre-wrap;
+}
+
+.chat-bubble-user {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.chat-bubble-assistant {
+  align-self: flex-start;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.chat-typing {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  padding: 0.75rem 1.25rem;
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.typing-dot {
+  animation: typing-bounce 1.2s ease-in-out infinite;
+  background: var(--color-secondary);
+  border-radius: 50%;
+  display: block;
+  height: 6px;
+  width: 6px;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+.chat-input-bar {
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.chat-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  flex: 1;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.chat-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.chat-send {
+  border-radius: 0.5rem;
+  min-width: 70px;
+}
+
