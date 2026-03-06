@@ -31,10 +31,16 @@ type OpenRouterResult =
       errorText: string;
     };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
 
 export async function POST(req: NextRequest) {
   const openRouterApiKey = process.env.OPENROUTER_API_KEY?.trim();
@@ -49,15 +55,17 @@ export async function POST(req: NextRequest) {
 
   const { messages } = await req.json();
 
-  // Fetch her recipe titles for context
-  const { data: recipes } = await supabase
-    .from("recipes")
-    .select("title, ingredients")
-    .limit(50);
+  let recipeContext = "No recipes saved yet.";
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    const { data: recipes } = await supabase
+      .from("recipes")
+      .select("title, ingredients")
+      .limit(50);
 
-  const recipeRows = (recipes as RecipeContextRow[] | null) ?? [];
-  const recipeContext = recipes && recipes.length > 0
-    ? recipeRows.map((recipe) => {
+    const recipeRows = (recipes as RecipeContextRow[] | null) ?? [];
+    if (recipeRows.length > 0) {
+      recipeContext = recipeRows.map((recipe) => {
         const ingredientNames = Array.isArray(recipe.ingredients)
           ? recipe.ingredients
               .map((ingredient) =>
@@ -67,8 +75,9 @@ export async function POST(req: NextRequest) {
               .join(", ")
           : "";
         return `- ${recipe.title}${ingredientNames ? ` (${ingredientNames})` : ""}`;
-      }).join("\n")
-    : "No recipes saved yet.";
+      }).join("\n");
+    }
+  }
 
   const systemPrompt = `You are Jizzy's personal cooking assistant in her Cute Cookbook app. You're warm, friendly, and helpful — like a best friend who loves to cook.
 
