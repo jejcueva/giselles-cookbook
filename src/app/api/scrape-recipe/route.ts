@@ -51,10 +51,12 @@ function getScraperApiKey(): string | undefined {
 /** Force-inject SCRAPER_API_KEY from .env.local into process.env so Next.js dev always sees it */
 function injectScraperApiKeyFromFile(): void {
   if (process.env.SCRAPER_API_KEY?.trim()) return;
+  const tried: string[] = [];
   for (const root of [process.cwd(), projectRoot]) {
     for (const file of [".env.local", ".env"]) {
+      const envPath = join(root, file);
+      tried.push(envPath);
       try {
-        const envPath = join(root, file);
         if (!existsSync(envPath)) continue;
         const content = readFileSync(envPath, "utf-8").replace(/^\uFEFF/, "");
         for (const line of content.split(/\r?\n/)) {
@@ -68,11 +70,17 @@ function injectScraperApiKeyFromFile(): void {
             break;
           }
         }
-      } catch {
-        // ignore
+      } catch (e) {
+        console.warn("[scrape-recipe] Error reading", envPath, e);
       }
     }
   }
+  console.warn(
+    "[scrape-recipe] SCRAPER_API_KEY not set. process.cwd()=%s projectRoot=%s tried=%s",
+    process.cwd(),
+    projectRoot,
+    tried.join(", ")
+  );
 }
 
 type ScrapedRecipe = {
