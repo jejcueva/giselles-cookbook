@@ -1,5 +1,6 @@
 "use client";
 
+import { ImportModal } from "@/components/import-modal";
 import { NewRecipeModal } from "@/components/new-recipe-modal";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -38,6 +39,7 @@ export function AppShell({ children }: AppShellProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [newRecipeModalOpen, setNewRecipeModalOpen] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -185,6 +187,7 @@ export function AppShell({ children }: AppShellProps) {
               </div>
             )}
           </div>
+          <button type="button" className="btn-secondary" onClick={() => setShowImport(true)}>Import</button>
           <button
             type="button"
             className="btn-primary topbar-new-recipe"
@@ -200,6 +203,7 @@ export function AppShell({ children }: AppShellProps) {
           open={newRecipeModalOpen}
           onClose={() => setNewRecipeModalOpen(false)}
         />
+        {showImport && <ImportModal onClose={() => setShowImport(false)} />}
       </div>
     </div>
   );
