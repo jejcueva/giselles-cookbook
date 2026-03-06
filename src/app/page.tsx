@@ -25,9 +25,7 @@ type RecentRecipeRow = {
   title: string;
   cover_image_url: string | null;
   created_at: string;
-  recipe_categories:
-    | Array<{ categories: { name: string | null } | null } | null>
-    | null;
+  recipe_categories: RecipeCategoryRelation[] | null;
 };
 
 type FavoriteRecipeRow = {
@@ -35,6 +33,17 @@ type FavoriteRecipeRow = {
   title: string;
   cover_image_url: string | null;
 };
+
+type CategoryNode = { name: string | null };
+type RecipeCategoryRelation = {
+  categories: CategoryNode | CategoryNode[] | null;
+};
+
+function getCategoryName(relations: RecipeCategoryRelation[] | null): string | null {
+  const categories = relations?.[0]?.categories;
+  if (!categories) return null;
+  return Array.isArray(categories) ? categories[0]?.name ?? null : categories.name;
+}
 
 function getTimeOfDay() {
   const hour = new Date().getHours();
@@ -168,7 +177,7 @@ export default function Home() {
             title: recipe.title,
             cover_image_url: recipe.cover_image_url,
             created_at: recipe.created_at,
-            category_name: recipe.recipe_categories?.[0]?.categories?.name ?? null,
+            category_name: getCategoryName(recipe.recipe_categories),
           }))
         );
       }

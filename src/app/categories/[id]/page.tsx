@@ -18,7 +18,7 @@ type Category = {
 };
 
 type RecipeCategoryRow = {
-  recipes: Recipe | null;
+  recipes: Recipe[] | Recipe | null;
 };
 
 export default function CategoryDetailPage() {
@@ -42,8 +42,13 @@ export default function CategoryDetailPage() {
       if (recipesResult.data) {
         setRecipes(
           (recipesResult.data as RecipeCategoryRow[])
-            .map((row) => row.recipes)
-            .filter((recipe): recipe is Recipe => recipe !== null)
+            .flatMap((row) =>
+              Array.isArray(row.recipes)
+                ? row.recipes
+                : row.recipes
+                  ? [row.recipes]
+                  : []
+            )
         );
       }
       setLoading(false);

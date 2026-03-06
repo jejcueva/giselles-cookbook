@@ -13,14 +13,23 @@ type Recipe = {
   category_name: string | null;
 };
 
+type CategoryNode = { name: string | null };
+type RecipeCategoryRelation = {
+  categories: CategoryNode | CategoryNode[] | null;
+};
+
 type FavoriteRecipeRow = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  recipe_categories:
-    | Array<{ categories: { name: string | null } | null } | null>
-    | null;
+  recipe_categories: RecipeCategoryRelation[] | null;
 };
+
+function getCategoryName(relations: FavoriteRecipeRow["recipe_categories"]): string | null {
+  const categories = relations?.[0]?.categories;
+  if (!categories) return null;
+  return Array.isArray(categories) ? categories[0]?.name ?? null : categories.name;
+}
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
@@ -40,7 +49,7 @@ export default function FavoritesPage() {
             id: recipe.id,
             title: recipe.title,
             cover_image_url: recipe.cover_image_url,
-            category_name: recipe.recipe_categories?.[0]?.categories?.name ?? null,
+            category_name: getCategoryName(recipe.recipe_categories),
           }))
         );
       }
