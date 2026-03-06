@@ -91,7 +91,21 @@ Help her with:
 - Meal planning ideas
 - General cooking tips
 
-Keep responses concise and friendly. Use simple language. If she asks about a recipe she has saved, reference it by name.`;
+Keep responses concise and friendly. Use simple language. If she asks about a recipe she has saved, reference it by name.
+
+IMPORTANT: When you provide a FULL recipe (with ingredients and instructions), you MUST append a hidden JSON block at the very end of your message using this exact format:
+
+:::recipe
+{"title":"Recipe Name","ingredients":[{"name":"ingredient","amount":"1","unit":"cup"}],"instructions":["Step 1 text","Step 2 text"],"cookTime":null,"prepTime":null,"servings":null,"calories":null,"protein":null,"carbs":null,"fat":null}
+:::
+
+Rules for the recipe block:
+- Only include it when giving a FULL recipe with ingredients AND instructions
+- Do NOT include it for partial answers, tips, or substitution advice
+- Fill in cookTime/prepTime in minutes, servings as a number, macros as numbers — use null if unknown
+- The ingredients array must have objects with name, amount, and unit strings
+- The instructions array must be plain step strings
+- Still write the recipe in a friendly readable format BEFORE the block — the block is hidden metadata`;
 
   const sendOpenRouterRequest = async (
     model: string,
