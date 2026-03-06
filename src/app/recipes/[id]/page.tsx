@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 type Recipe = {
   id: string;
@@ -101,7 +102,14 @@ export default function RecipeDetailPage() {
     <AppShell>
       <div className="recipe-detail">
         {recipe.cover_image_url && (
-          <img src={recipe.cover_image_url} alt={recipe.title} className="recipe-detail-hero" />
+          <Image
+            src={recipe.cover_image_url}
+            alt={recipe.title}
+            className="recipe-detail-hero"
+            width={1200}
+            height={800}
+            unoptimized
+          />
         )}
         <div className="recipe-detail-header">
           <h1 className="recipe-detail-title">{recipe.title}</h1>

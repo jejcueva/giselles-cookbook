@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 type Category = {
   id: string;
@@ -249,7 +250,14 @@ export default function Home() {
             {recipes.map((recipe) => (
               <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card" style={{ textDecoration: "none" }}>
                 {recipe.cover_image_url && (
-                  <img src={recipe.cover_image_url} alt={recipe.title} className="recipe-card-img" />
+                  <Image
+                    src={recipe.cover_image_url}
+                    alt={recipe.title}
+                    className="recipe-card-img"
+                    width={640}
+                    height={360}
+                    unoptimized
+                  />
                 )}
                 <div className="recipe-info">
                   <span className="recipe-name">{recipe.title}</span>

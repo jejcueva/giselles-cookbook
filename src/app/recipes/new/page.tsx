@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 type Ingredient = { name: string; amount: string; unit: string };
 type Category = { id: string; name: string; emoji: string | null };
@@ -335,7 +336,14 @@ function NewRecipeContent() {
             <div className="photo-upload-area">
               {coverPreview ? (
                 <div className="photo-preview-wrap">
-                  <img src={coverPreview} alt="Cover preview" className="photo-preview" />
+                  <Image
+                    src={coverPreview}
+                    alt="Cover preview"
+                    className="photo-preview"
+                    width={640}
+                    height={420}
+                    unoptimized
+                  />
                   <button
                     type="button"
                     className="btn-icon-remove photo-remove"

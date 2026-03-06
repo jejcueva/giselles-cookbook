@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 
 type Recipe = {
   id: string;
@@ -85,7 +86,14 @@ export default function SharePage() {
         </div>
 
         {recipe.cover_image_url && (
-          <img src={recipe.cover_image_url} alt={recipe.title} className="share-hero" />
+          <Image
+            src={recipe.cover_image_url}
+            alt={recipe.title}
+            className="share-hero"
+            width={1200}
+            height={800}
+            unoptimized
+          />
         )}
 
         <div className="share-meta">

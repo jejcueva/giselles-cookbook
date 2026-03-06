@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const SESSION_KEY = "cute-cookbook-authenticated";
 const USERNAME_KEY = "cute-cookbook-username";
@@ -35,6 +36,14 @@ export function LoveQuizLogin() {
       localStorage.setItem(SESSION_KEY, "true");
       localStorage.setItem(USERNAME_KEY, normalized);
       const seenKey = birthdaySeenKey(normalized);
+
+      // Keep the test account reusable for birthday-flow QA.
+      if (normalized === "test") {
+        localStorage.removeItem(seenKey);
+        router.push("/birthday");
+        return;
+      }
+
       const hasSeenBirthday = localStorage.getItem(seenKey) === "true";
       router.push(hasSeenBirthday ? "/" : "/birthday");
       return;
@@ -48,7 +57,14 @@ export function LoveQuizLogin() {
   return (
     <main className="auth-screen">
       <section className="auth-card quiz-card">
-        <img src="/cat.png" alt="two cats holding hands" className="quiz-cat-photo" />
+        <Image
+          src="/cat.png"
+          alt="two cats holding hands"
+          className="quiz-cat-photo"
+          width={240}
+          height={240}
+          priority
+        />
 
         <div className="quiz-heart">♥</div>
 

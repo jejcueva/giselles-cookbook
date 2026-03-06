@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 type Ingredient = { name: string; amount: string; unit: string };
 type Category = { id: string; name: string; emoji: string | null };
@@ -163,8 +164,15 @@ export default function EditRecipePage() {
             <div className="photo-upload-area">
               {coverPreview ? (
                 <div className="photo-preview-wrap">
-                  <img src={coverPreview} alt="Cover preview" className="photo-preview" />
-                  <button type="button" className="btn-icon-remove photo-remove" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>×</button>
+                  <Image
+                    src={coverPreview}
+                    alt="Cover preview"
+                    className="photo-preview"
+                    width={640}
+                    height={420}
+                    unoptimized
+                  />
+                  <button type="button" className="btn-icon-remove photo-remove" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>Ã—</button>
                 </div>
               ) : (
                 <label className="photo-drop-label">
@@ -188,7 +196,7 @@ export default function EditRecipePage() {
                 <input type="text" className="form-input" placeholder="Amount" value={ing.amount} onChange={(e) => updateIngredient(i, "amount", e.target.value)} style={{ flex: "0 0 80px" }} />
                 <input type="text" className="form-input" placeholder="Unit" value={ing.unit} onChange={(e) => updateIngredient(i, "unit", e.target.value)} style={{ flex: "0 0 80px" }} />
                 <input type="text" className="form-input" placeholder="Ingredient name" value={ing.name} onChange={(e) => updateIngredient(i, "name", e.target.value)} style={{ flex: 1 }} />
-                {ingredients.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeIngredient(i)}>×</button>}
+                {ingredients.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeIngredient(i)}>Ã—</button>}
               </div>
             ))}
             <button type="button" className="btn-add-row" onClick={addIngredient}>+ Add Ingredient</button>
@@ -200,7 +208,7 @@ export default function EditRecipePage() {
               <div key={i} className="instruction-row">
                 <span className="step-number">{i + 1}.</span>
                 <textarea className="form-textarea" value={step} onChange={(e) => updateInstruction(i, e.target.value)} rows={2} style={{ flex: 1 }} />
-                {instructions.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeInstruction(i)}>×</button>}
+                {instructions.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeInstruction(i)}>Ã—</button>}
               </div>
             ))}
             <button type="button" className="btn-add-row" onClick={addInstruction}>+ Add Step</button>
@@ -235,7 +243,7 @@ export default function EditRecipePage() {
             {tags.length > 0 && (
               <div className="tag-list">
                 {tags.map((tag) => (
-                  <span key={tag} className="tag-chip">{tag}<button type="button" className="tag-remove" onClick={() => removeTag(tag)}>×</button></span>
+                  <span key={tag} className="tag-chip">{tag}<button type="button" className="tag-remove" onClick={() => removeTag(tag)}>Ã—</button></span>
                 ))}
               </div>
             )}
@@ -253,3 +261,5 @@ export default function EditRecipePage() {
     </AppShell>
   );
 }
+
+
