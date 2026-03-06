@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -101,7 +101,7 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
           onClick={closeModal}
           aria-label="Close"
         >
-          ×
+          &times;
         </button>
 
         {step === "choice" ? (
@@ -118,7 +118,6 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
                 className="new-recipe-modal-option"
                 onClick={handleImportFromUrl}
               >
-                <span className="new-recipe-modal-option-icon">🔗</span>
                 Import from URL
               </button>
               <button
@@ -126,7 +125,6 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
                 className="new-recipe-modal-option"
                 onClick={handleDoItMyself}
               >
-                <span className="new-recipe-modal-option-icon">✏️</span>
                 Do it myself
               </button>
             </div>
@@ -159,9 +157,9 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
             </div>
             {importing && (
               <div className="new-recipe-modal-hearts" aria-hidden>
-                <span className="heart">♥</span>
-                <span className="heart">♥</span>
-                <span className="heart">♥</span>
+                <span className="heart">&hearts;</span>
+                <span className="heart">&hearts;</span>
+                <span className="heart">&hearts;</span>
               </div>
             )}
             {importError && (
@@ -175,7 +173,7 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
               onClick={handleBack}
               disabled={importing}
             >
-              ← Back
+              &larr; Back
             </button>
           </form>
         )}
@@ -183,3 +181,4 @@ export function NewRecipeModal({ open, onClose }: NewRecipeModalProps) {
     </div>
   );
 }
+

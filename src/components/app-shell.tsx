@@ -1,8 +1,7 @@
 "use client";
 
-import { ImportModal } from "@/components/import-modal";
 import { NewRecipeModal } from "@/components/new-recipe-modal";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -17,6 +16,14 @@ type SearchResult = {
   id: string;
   title: string;
   category_name: string | null;
+};
+
+type RecipeSearchQueryRow = {
+  id: string;
+  title: string;
+  recipe_categories:
+    | Array<{ categories: { name: string | null } | null } | null>
+    | null;
 };
 
 const NAV_ITEMS = [
@@ -39,22 +46,19 @@ export function AppShell({ children }: AppShellProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [newRecipeModalOpen, setNewRecipeModalOpen] = useState(false);
-  const [showImport, setShowImport] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    setIsAuthenticated(localStorage.getItem(SESSION_KEY) === "true");
-  }, []);
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isAuthenticated = isClient && localStorage.getItem(SESSION_KEY) === "true";
 
   useEffect(() => {
     if (searchQuery.length < 2) {
-      setSearchResults([]);
-      setSearchOpen(false);
       return;
     }
 
+    let isActive = true;
     const timeout = setTimeout(async () => {
       const { data } = await supabase
         .from("recipes")
@@ -62,28 +66,31 @@ export function AppShell({ children }: AppShellProps) {
         .ilike("title", `%${searchQuery}%`)
         .limit(8);
 
-      if (data) {
-        setSearchResults(
-          data.map((r: any) => ({
-            id: r.id,
-            title: r.title,
-            category_name: r.recipe_categories?.[0]?.categories?.name ?? null,
-          }))
-        );
-        setSearchOpen(true);
-      }
+      if (!isActive) return;
+
+      const results = (data as RecipeSearchQueryRow[] | null ?? []).map((recipe) => ({
+        id: recipe.id,
+        title: recipe.title,
+        category_name: recipe.recipe_categories?.[0]?.categories?.name ?? null,
+      }));
+
+      setSearchResults(results);
+      setSearchOpen(true);
     }, 300);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      isActive = false;
+      clearTimeout(timeout);
+    };
   }, [searchQuery]);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated) {
+    if (isClient && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [mounted, isAuthenticated, router]);
+  }, [isAuthenticated, isClient, router]);
 
-  if (!mounted || !isAuthenticated) {
+  if (!isClient || !isAuthenticated) {
     return (
       <div className="loading-state">
         <p>Checking session...</p>
@@ -167,7 +174,14 @@ export function AppShell({ children }: AppShellProps) {
               placeholder="Search recipes..."
               aria-label="Search recipes"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const nextQuery = e.target.value;
+                setSearchQuery(nextQuery);
+                if (nextQuery.length < 2) {
+                  setSearchResults([]);
+                  setSearchOpen(false);
+                }
+              }}
               onFocus={() => searchResults.length > 0 && setSearchOpen(true)}
               onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
             />
@@ -187,7 +201,6 @@ export function AppShell({ children }: AppShellProps) {
               </div>
             )}
           </div>
-          <button type="button" className="btn-secondary" onClick={() => setShowImport(true)}>Import</button>
           <button
             type="button"
             className="btn-primary topbar-new-recipe"
@@ -203,7 +216,6 @@ export function AppShell({ children }: AppShellProps) {
           open={newRecipeModalOpen}
           onClose={() => setNewRecipeModalOpen(false)}
         />
-        {showImport && <ImportModal onClose={() => setShowImport(false)} />}
       </div>
     </div>
   );

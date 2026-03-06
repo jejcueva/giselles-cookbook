@@ -4,27 +4,65 @@ import { AppShell } from "@/components/app-shell";
 import { IMPORT_PREFILL_KEY } from "@/components/new-recipe-modal";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type Ingredient = { name: string; amount: string; unit: string };
 type Category = { id: string; name: string; emoji: string | null };
+type ImportPrefill = {
+  title?: string;
+  ingredients?: Ingredient[];
+  instructions?: string[];
+  cookTime?: number | null;
+  prepTime?: number | null;
+  servings?: number | null;
+  calories?: number | null;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+  imageUrl?: string | null;
+  sourceUrl?: string;
+};
 
-export default function NewRecipePage() {
+function readImportPrefill(): ImportPrefill | null {
+  if (typeof window === "undefined") return null;
+  const raw = sessionStorage.getItem(IMPORT_PREFILL_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as ImportPrefill;
+    sessionStorage.removeItem(IMPORT_PREFILL_KEY);
+    return parsed;
+  } catch {
+    sessionStorage.removeItem(IMPORT_PREFILL_KEY);
+    return null;
+  }
+}
+
+function NewRecipeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isManual = searchParams.get("manual") === "1";
-  const [title, setTitle] = useState("");
+  const [initialPrefill] = useState<ImportPrefill | null>(() => readImportPrefill());
+  const [title, setTitle] = useState(initialPrefill?.title ?? "");
   const [notes, setNotes] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
-  const [cookTime, setCookTime] = useState("");
-  const [prepTime, setPrepTime] = useState("");
-  const [servings, setServings] = useState("");
+  const [sourceUrl, setSourceUrl] = useState(initialPrefill?.sourceUrl ?? "");
+  const [cookTime, setCookTime] = useState(
+    initialPrefill?.cookTime != null ? String(initialPrefill.cookTime) : ""
+  );
+  const [prepTime, setPrepTime] = useState(
+    initialPrefill?.prepTime != null ? String(initialPrefill.prepTime) : ""
+  );
+  const [servings, setServings] = useState(
+    initialPrefill?.servings != null ? String(initialPrefill.servings) : ""
+  );
 
   // Ingredients
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { name: "", amount: "", unit: "" },
-  ]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>(
+    initialPrefill?.ingredients?.length
+      ? initialPrefill.ingredients
+      : [{ name: "", amount: "", unit: "" }]
+  );
 
   function addIngredient() {
     setIngredients([...ingredients, { name: "", amount: "", unit: "" }]);
@@ -41,7 +79,9 @@ export default function NewRecipePage() {
   }
 
   // Instructions
-  const [instructions, setInstructions] = useState<string[]>([""]);
+  const [instructions, setInstructions] = useState<string[]>(
+    initialPrefill?.instructions?.length ? initialPrefill.instructions : [""]
+  );
 
   function addInstruction() {
     setInstructions([...instructions, ""]);
@@ -58,10 +98,16 @@ export default function NewRecipePage() {
   }
 
   // Macros
-  const [calories, setCalories] = useState("");
-  const [protein, setProtein] = useState("");
-  const [carbs, setCarbs] = useState("");
-  const [fat, setFat] = useState("");
+  const [calories, setCalories] = useState(
+    initialPrefill?.calories != null ? String(initialPrefill.calories) : ""
+  );
+  const [protein, setProtein] = useState(
+    initialPrefill?.protein != null ? String(initialPrefill.protein) : ""
+  );
+  const [carbs, setCarbs] = useState(
+    initialPrefill?.carbs != null ? String(initialPrefill.carbs) : ""
+  );
+  const [fat, setFat] = useState(initialPrefill?.fat != null ? String(initialPrefill.fat) : "");
 
   // Import from URL
   const [importUrl, setImportUrl] = useState("");
@@ -74,6 +120,8 @@ export default function NewRecipePage() {
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryEmoji, setNewCategoryEmoji] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(initialPrefill?.imageUrl ?? null);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -81,45 +129,6 @@ export default function NewRecipePage() {
       if (data) setCategories(data);
     }
     fetchCategories();
-  }, []);
-
-  // Prefill from URL import (modal stores in sessionStorage before redirecting here)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = sessionStorage.getItem(IMPORT_PREFILL_KEY);
-    if (!raw) return;
-    try {
-      const prefill = JSON.parse(raw) as {
-        title?: string;
-        ingredients?: Ingredient[];
-        instructions?: string[];
-        cookTime?: number | null;
-        prepTime?: number | null;
-        servings?: number | null;
-        calories?: number | null;
-        protein?: number | null;
-        carbs?: number | null;
-        fat?: number | null;
-        imageUrl?: string | null;
-        sourceUrl?: string;
-      };
-      sessionStorage.removeItem(IMPORT_PREFILL_KEY);
-      if (prefill.title) setTitle(prefill.title);
-      if (prefill.sourceUrl) setSourceUrl(prefill.sourceUrl);
-      if (prefill.ingredients?.length) setIngredients(prefill.ingredients);
-      if (prefill.instructions?.length) setInstructions(prefill.instructions);
-      else if (prefill.instructions && prefill.instructions.length === 0) setInstructions([""]);
-      if (prefill.cookTime != null) setCookTime(String(prefill.cookTime));
-      if (prefill.prepTime != null) setPrepTime(String(prefill.prepTime));
-      if (prefill.servings != null) setServings(String(prefill.servings));
-      if (prefill.calories != null) setCalories(String(prefill.calories));
-      if (prefill.protein != null) setProtein(String(prefill.protein));
-      if (prefill.carbs != null) setCarbs(String(prefill.carbs));
-      if (prefill.fat != null) setFat(String(prefill.fat));
-      if (prefill.imageUrl) setCoverPreview(prefill.imageUrl);
-    } catch {
-      sessionStorage.removeItem(IMPORT_PREFILL_KEY);
-    }
   }, []);
 
   async function createCategory() {
@@ -137,10 +146,6 @@ export default function NewRecipePage() {
       setNewCategoryEmoji("");
     }
   }
-
-  // Photo
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -587,5 +592,13 @@ export default function NewRecipePage() {
         </form>
       </div>
     </AppShell>
+  );
+}
+
+export default function NewRecipePage() {
+  return (
+    <Suspense fallback={<AppShell><p className="empty-state-text">Loading...</p></AppShell>}>
+      <NewRecipeContent />
+    </Suspense>
   );
 }

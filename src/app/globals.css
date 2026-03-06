@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 :root {
   --color-primary: #f2b8c6;
@@ -530,6 +530,8 @@ p {
 .topbar .btn-primary.topbar-new-recipe {
   align-items: center;
   display: inline-flex;
+  flex: 1;
+  justify-content: center;
   min-height: 2.2rem;
   padding: 0.45rem 1rem;
   text-decoration: none;
