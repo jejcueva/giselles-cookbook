@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const SESSION_KEY = "cute-cookbook-authenticated";
 const USERNAME_KEY = "cute-cookbook-username";
 const BIRTHDAY_ENTRY_KEY = "cute-cookbook-birthday-entry";
+const REMEMBER_USERNAME_KEY = "cute-cookbook-remember-username";
+const REMEMBER_PASSWORD_KEY = "cute-cookbook-remember-password";
 
 type Account = "gisellemyluv" | "test";
 
@@ -71,6 +73,10 @@ function birthdaySeenKey(user: string) {
   return `has_seen_birthday_${user}`;
 }
 
+function quizCompletedKey(user: string) {
+  return `has_completed_quiz_${user}`;
+}
+
 function normalize(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -109,6 +115,17 @@ export function LoveQuizLogin() {
   const [step, setStep] = useState<"credentials" | "quiz">("credentials");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    const savedUsername = localStorage.getItem(REMEMBER_USERNAME_KEY);
+    const savedPassword = localStorage.getItem(REMEMBER_PASSWORD_KEY);
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+    if (savedPassword) setPassword(savedPassword);
+  }, []);
   const [pendingUser, setPendingUser] = useState<Account | null>(null);
   const [pendingHasSeenBirthday, setPendingHasSeenBirthday] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -136,8 +153,31 @@ export function LoveQuizLogin() {
       return;
     }
 
-    const seenKey = birthdaySeenKey(normalized);
-    setPendingHasSeenBirthday(localStorage.getItem(seenKey) === "true");
+    if (rememberMe) {
+      localStorage.setItem(REMEMBER_USERNAME_KEY, normalized);
+      localStorage.setItem(REMEMBER_PASSWORD_KEY, password);
+    } else {
+      localStorage.removeItem(REMEMBER_USERNAME_KEY);
+      localStorage.removeItem(REMEMBER_PASSWORD_KEY);
+    }
+
+    const hasCompletedQuiz = localStorage.getItem(quizCompletedKey(normalized)) === "true";
+    const hasSeenBirthday = localStorage.getItem(birthdaySeenKey(normalized)) === "true";
+
+    if (hasCompletedQuiz) {
+      localStorage.setItem(SESSION_KEY, "true");
+      localStorage.setItem(USERNAME_KEY, normalized);
+      const shouldShowBirthday = normalized === "test" || !hasSeenBirthday;
+      if (shouldShowBirthday) {
+        localStorage.setItem(BIRTHDAY_ENTRY_KEY, "true");
+        router.push("/birthday");
+      } else {
+        router.push("/");
+      }
+      return;
+    }
+
+    setPendingHasSeenBirthday(hasSeenBirthday);
     setPendingUser(normalized);
     setCurrentIndex(0);
     setValue("");
@@ -160,10 +200,12 @@ export function LoveQuizLogin() {
 
     localStorage.setItem(SESSION_KEY, "true");
     localStorage.setItem(USERNAME_KEY, pendingUser);
+    localStorage.setItem(quizCompletedKey(pendingUser), "true");
 
     // Keep the test account reusable for birthday-flow QA.
     if (pendingUser === "test") {
       localStorage.removeItem(birthdaySeenKey(pendingUser));
+      localStorage.removeItem(quizCompletedKey(pendingUser));
     }
 
     const shouldShowBirthday = pendingUser === "test" || !pendingHasSeenBirthday;
@@ -242,6 +284,15 @@ export function LoveQuizLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
+              <label className="quiz-remember-me">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span>Remember me</span>
+              </label>
 
               {error ? (
                 <p className={`error-text${errorShaking ? " error-shake" : ""}`}>{error}</p>

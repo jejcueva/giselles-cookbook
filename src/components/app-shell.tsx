@@ -217,6 +217,29 @@ export function AppShell({ children }: AppShellProps) {
           onClose={() => setNewRecipeModalOpen(false)}
         />
       </div>
+
+      {/* Mobile bottom tab bar */}
+      <nav className="mobile-tab-bar" aria-label="Mobile navigation">
+        {NAV_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          const icons: Record<string, string> = {
+            "/": "\ud83c\udfe0",
+            "/recipes": "\ud83d\udcd6",
+            "/categories": "\ud83c\udf7d\ufe0f",
+            "/favorites": "\u2764\ufe0f",
+          };
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={isActive ? "mobile-tab active" : "mobile-tab"}
+            >
+              <span className="mobile-tab-icon">{icons[item.href] || "\ud83d\udccc"}</span>
+              <span className="mobile-tab-label">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
