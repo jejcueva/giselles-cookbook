@@ -822,6 +822,8 @@ p {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 1.5rem;
   position: relative;
@@ -2437,8 +2439,10 @@ p {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
   max-width: 720px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .chat-messages {
@@ -2990,7 +2994,6 @@ p {
 
   /* Chat responsive */
   .chat-container {
-    height: calc(100vh - 72px - env(safe-area-inset-bottom) - 8px);
     padding: 0;
   }
 
