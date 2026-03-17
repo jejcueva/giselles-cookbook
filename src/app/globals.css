@@ -2957,7 +2957,9 @@ p {
 
   .content {
     padding: 1rem;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    /* Main column height already accounts for the mobile tab bar.
+       Keep only a tiny visual gap above the tab bar. */
+    padding-bottom: 2px;
   }
 
   /* Recipe cards single column on mobile */
