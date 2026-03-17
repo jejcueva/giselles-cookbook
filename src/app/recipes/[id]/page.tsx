@@ -194,9 +194,6 @@ export default function RecipeDetailPage() {
           <a href={recipe.source_url} target="_blank" rel="noopener noreferrer" className="source-link">View original recipe</a>
         )}
         <div className="recipe-detail-actions">
-          <button type="button" className="btn-secondary" onClick={copyShareLink}>
-            {copied ? "Copied!" : "Share"}
-          </button>
           <Link href={`/recipes/${recipe.id}/edit`} className="btn-primary">Edit</Link>
           <button type="button" className="btn-danger" onClick={handleDelete}>Delete</button>
         </div>

@@ -38,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dashboard" },
   { href: "/recipes", label: "Recipes" },
   { href: "/categories", label: "Categories" },
+  { href: "/favorites", label: "Favorites" },
 ];
 
 const UTILITY_ITEMS: NavItem[] = [
@@ -48,6 +49,7 @@ const UTILITY_ITEMS: NavItem[] = [
 const MOBILE_TAB_ITEMS: NavItem[] = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/recipes", label: "Recipes", icon: "book" },
+  { href: "/favorites", label: "Favorites", icon: "heart" },
   { href: "/ai-assistant", label: "Chat", icon: "chat" },
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
