@@ -4,7 +4,6 @@ import { AppShell } from "@/components/app-shell";
 import { RecipeCard } from "@/components/recipe-card";
 import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Category = {

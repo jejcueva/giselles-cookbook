@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+
 
 type Category = {
   id: string;

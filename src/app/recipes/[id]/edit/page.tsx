@@ -37,7 +37,7 @@ export default function EditRecipePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const [recipeResult, tagsResult, catsResult, allCats] = await Promise.all([
+      const [recipeResult, , catsResult, allCats] = await Promise.all([
         supabase.from("recipes").select("*").eq("id", recipeId).single(),
         supabase.from("recipe_tags").select("tag").eq("recipe_id", recipeId),
         supabase.from("recipe_categories").select("category_id").eq("recipe_id", recipeId),

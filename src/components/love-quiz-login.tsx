@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -113,19 +113,18 @@ export function LoveQuizLogin() {
   const router = useRouter();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [step, setStep] = useState<"credentials" | "quiz">("credentials");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    const savedUsername = localStorage.getItem(REMEMBER_USERNAME_KEY);
-    const savedPassword = localStorage.getItem(REMEMBER_PASSWORD_KEY);
-    if (savedUsername) {
-      setUsername(savedUsername);
-      setRememberMe(true);
-    }
-    if (savedPassword) setPassword(savedPassword);
-  }, []);
+  const [username, setUsername] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(REMEMBER_USERNAME_KEY) || "";
+  });
+  const [password, setPassword] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(REMEMBER_PASSWORD_KEY) || "";
+  });
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem(REMEMBER_USERNAME_KEY);
+  });
   const [pendingUser, setPendingUser] = useState<Account | null>(null);
   const [pendingHasSeenBirthday, setPendingHasSeenBirthday] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);

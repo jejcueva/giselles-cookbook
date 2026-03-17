@@ -54,7 +54,6 @@ export default function RecipeDetailPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string; emoji: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -89,13 +88,6 @@ export default function RecipeDetailPage() {
     setRecipe({ ...recipe, is_favorite: newVal });
   }
 
-  function copyShareLink() {
-    if (!recipe) return;
-    const shareUrl = `${window.location.origin}/share/${recipe.id}`;
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
 
   async function handleDelete() {
     if (!recipe) return;
