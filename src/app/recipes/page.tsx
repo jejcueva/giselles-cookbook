@@ -216,8 +216,9 @@ export default function RecipesPage() {
             role="dialog"
             aria-modal="true"
             aria-label="Filter recipes"
+            onClick={() => setFiltersOpen(false)}
           >
-            <div className="filters-sheet">
+            <div className="filters-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="filters-sheet-header">
                 <h2 className="filters-sheet-title">Filters</h2>
                 <button
