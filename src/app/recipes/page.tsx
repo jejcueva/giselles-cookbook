@@ -1,9 +1,9 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { RecipeCard } from "@/components/recipe-card";
 import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -200,38 +200,13 @@ export default function RecipesPage() {
         ) : (
           <div className="recipe-grid">
             {filteredRecipes.map((recipe) => (
-              <Link
+              <RecipeCard
                 key={recipe.id}
-                href={`/recipes/${recipe.id}`}
-                className="recipe-card recipe-card-vertical"
-                style={{ textDecoration: "none" }}
-              >
-                {recipe.cover_image_url && (
-                  <Image
-                    src={recipe.cover_image_url}
-                    alt={recipe.title}
-                    className="recipe-card-img"
-                    width={640}
-                    height={360}
-                    unoptimized
-                  />
-                )}
-                <div className="recipe-info recipe-info-card">
-                  <span className="recipe-name">{recipe.title}</span>
-                  {recipe.categories.length > 0 && (
-                    <div className="recipe-card-tags">
-                      {recipe.categories.map((category) => (
-                        <span
-                          key={category.id}
-                          className="recipe-category-chip"
-                        >
-                          {category.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Link>
+                id={recipe.id}
+                title={recipe.title}
+                coverImageUrl={recipe.cover_image_url}
+                categories={recipe.categories}
+              />
             ))}
           </div>
         )}

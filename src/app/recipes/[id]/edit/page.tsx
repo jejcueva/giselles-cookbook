@@ -177,7 +177,17 @@ export default function EditRecipePage() {
                     height={420}
                     unoptimized
                   />
-                  <button type="button" className="btn-icon-remove photo-remove" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>Ã—</button>
+                  <button
+                    type="button"
+                    className="btn-icon-remove photo-remove"
+                    onClick={() => {
+                      setCoverFile(null);
+                      setCoverPreview(null);
+                    }}
+                    aria-label="Remove cover photo"
+                  >
+                    ×
+                  </button>
                 </div>
               ) : (
                 <label className="photo-drop-label">
@@ -201,7 +211,16 @@ export default function EditRecipePage() {
                 <input type="text" className="form-input" placeholder="Amount" value={ing.amount} onChange={(e) => updateIngredient(i, "amount", e.target.value)} style={{ flex: "0 0 80px" }} />
                 <input type="text" className="form-input" placeholder="Unit" value={ing.unit} onChange={(e) => updateIngredient(i, "unit", e.target.value)} style={{ flex: "0 0 80px" }} />
                 <input type="text" className="form-input" placeholder="Ingredient name" value={ing.name} onChange={(e) => updateIngredient(i, "name", e.target.value)} style={{ flex: 1 }} />
-                {ingredients.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeIngredient(i)}>Ã—</button>}
+                {ingredients.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn-icon-remove"
+                    onClick={() => removeIngredient(i)}
+                    aria-label="Remove ingredient"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
             <button type="button" className="btn-add-row" onClick={addIngredient}>+ Add Ingredient</button>
@@ -213,7 +232,16 @@ export default function EditRecipePage() {
               <div key={i} className="instruction-row">
                 <span className="step-number">{i + 1}.</span>
                 <textarea className="form-textarea" value={step} onChange={(e) => updateInstruction(i, e.target.value)} rows={2} style={{ flex: 1 }} />
-                {instructions.length > 1 && <button type="button" className="btn-icon-remove" onClick={() => removeInstruction(i)}>Ã—</button>}
+                {instructions.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn-icon-remove"
+                    onClick={() => removeInstruction(i)}
+                    aria-label="Remove instruction"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
             <button type="button" className="btn-add-row" onClick={addInstruction}>+ Add Step</button>

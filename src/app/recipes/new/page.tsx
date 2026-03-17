@@ -45,6 +45,7 @@ function NewRecipeContent() {
   const searchParams = useSearchParams();
   const isManual = searchParams.get("manual") === "1";
   const [initialPrefill] = useState<ImportPrefill | null>(() => readImportPrefill());
+  const hasImportPrefill = initialPrefill !== null;
   const [title, setTitle] = useState(initialPrefill?.title ?? "");
   const [notes, setNotes] = useState("");
   const [sourceUrl, setSourceUrl] = useState(initialPrefill?.sourceUrl ?? "");
@@ -287,13 +288,19 @@ function NewRecipeContent() {
         <nav className="recipe-form-nav" aria-label="Breadcrumb">
           <Link href="/recipes" className="recipe-form-back">← Back to recipes</Link>
         </nav>
-        <h1 className="section-title">Add New Recipe</h1>
+        <h1 className="section-title">
+          {hasImportPrefill ? "Review & Edit Recipe" : "Add New Recipe"}
+        </h1>
         {!isManual && (
-          <p className="recipe-form-subtitle">Import from a blog URL or fill in the form below.</p>
+          <p className="recipe-form-subtitle">
+            {hasImportPrefill
+              ? "Make any edits you like, then save your recipe."
+              : "Import from a blog URL or fill in the form below."}
+          </p>
         )}
 
         <form className="recipe-form" onSubmit={handleSubmit}>
-          {!isManual && (
+          {!isManual && !hasImportPrefill && (
             <div className="import-section">
               <label className="form-label">
                 Import from URL

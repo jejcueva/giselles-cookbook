@@ -173,6 +173,30 @@
   color: var(--color-text);
 }
 
+/* login and birthday always stay light/pink regardless of dark mode */
+[data-theme="dark"] .auth-screen {
+  background: #fff8f0;
+  color: #4a3728;
+}
+
+[data-theme="dark"] .auth-screen .auth-card,
+[data-theme="dark"] .auth-screen .quiz-card {
+  background: #fffdfb !important;
+  border-color: #ebd8c8 !important;
+  color: #4a3728 !important;
+}
+
+[data-theme="dark"] .auth-screen input {
+  background: #fff !important;
+  border-color: #ebd8c8 !important;
+  color: #4a3728 !important;
+}
+
+[data-theme="dark"] .birthday-scene {
+  background: #f2b8c6 !important;
+  color: #4a3728 !important;
+}
+
 *, *:hover, *:focus {
   box-sizing: border-box;
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='%23e03c3c'/%3E%3C/svg%3E") 6 6, auto !important;
@@ -872,6 +896,36 @@ p {
   color: var(--color-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+.category-header-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.category-settings-panel {
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 0.6rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+}
+
+.category-settings-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-settings-delete {
+  align-self: flex-start;
+  margin-top: 0.25rem;
 }
 
 .recipe-grid {
@@ -2081,6 +2135,27 @@ p {
   height: 140px;
   object-fit: cover;
   width: 100%;
+}
+
+.recipe-card-img-placeholder {
+  background: #f3efe9;
+  border-bottom: 1px solid var(--color-border-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.9rem 1rem;
+}
+
+.recipe-card-img-placeholder-bar {
+  background: #e6ddd2;
+  border-radius: 999px;
+  height: 0.9rem;
+  margin-bottom: 0.45rem;
+  width: 75%;
+}
+
+.recipe-card-img-placeholder-bar-secondary {
+  width: 52%;
 }
 
 /* Settings page */
