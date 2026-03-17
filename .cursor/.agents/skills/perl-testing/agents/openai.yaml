@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perl Testing"
+  short_description: "Perl testing patterns using Test2::V0, Test::More, prove runner, mocking, coverage with Devel::Cover, and TDD methodology."
+  default_prompt: "Use the Perl Testing skill for this task."
+policy:
+  allow_implicit_invocation: true

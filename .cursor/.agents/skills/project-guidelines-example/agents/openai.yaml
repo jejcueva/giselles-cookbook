@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project Guidelines Example"
+  short_description: "\"Example project-specific skill template based on a real production application.\""
+  default_prompt: "Use the Project Guidelines Example skill for this task."
+policy:
+  allow_implicit_invocation: true

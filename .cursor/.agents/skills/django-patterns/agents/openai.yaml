@@ -1,0 +1,6 @@
+interface:
+  display_name: "Django Patterns"
+  short_description: "Django architecture patterns, REST API design with DRF, ORM best practices, caching, signals, middleware, and production-grade Django apps."
+  default_prompt: "Use the Django Patterns skill for this task."
+policy:
+  allow_implicit_invocation: true

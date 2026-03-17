@@ -2,6 +2,7 @@
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
+import { resolveCoverImageUrl } from "@/lib/storage-images";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -17,7 +18,7 @@ type Recipe = {
   title: string;
   cover_image_url: string | null;
   created_at: string;
-  category_name: string | null;
+  categories: { id: string; name: string; emoji: string | null }[];
 };
 
 type RecentRecipeRow = {
@@ -25,7 +26,7 @@ type RecentRecipeRow = {
   title: string;
   cover_image_url: string | null;
   created_at: string;
-  recipe_categories: RecipeCategoryRelation[] | null;
+  recipe_categories: Array<{ categories: { id: string; name: string; emoji: string | null } | { id: string; name: string; emoji: string | null }[] | null } | null> | null;
 };
 
 type FavoriteRecipeRow = {
@@ -34,15 +35,25 @@ type FavoriteRecipeRow = {
   cover_image_url: string | null;
 };
 
-type CategoryNode = { name: string | null };
-type RecipeCategoryRelation = {
-  categories: CategoryNode | CategoryNode[] | null;
-};
+type RecipeCategoryNode = { id: string; name: string; emoji: string | null };
 
-function getCategoryName(relations: RecipeCategoryRelation[] | null): string | null {
-  const categories = relations?.[0]?.categories;
-  if (!categories) return null;
-  return Array.isArray(categories) ? categories[0]?.name ?? null : categories.name;
+function getRecipeCategories(
+  relations: RecentRecipeRow["recipe_categories"]
+): RecipeCategoryNode[] {
+  const seen = new Set<string>();
+  const categories: RecipeCategoryNode[] = [];
+
+  for (const relation of relations ?? []) {
+    const nodes = relation?.categories;
+    const list = Array.isArray(nodes) ? nodes : nodes ? [nodes] : [];
+    for (const cat of list) {
+      if (!cat?.id || !cat.name || seen.has(cat.id)) continue;
+      seen.add(cat.id);
+      categories.push({ id: cat.id, name: cat.name, emoji: cat.emoji ?? null });
+    }
+  }
+
+  return categories;
 }
 
 function getTimeOfDay() {
@@ -153,6 +164,8 @@ function SkyIcon({ time }: { time: string }) {
   return <Sun />;
 }
 
+const RECENTLY_OPENED_KEY = "cute-cookbook-recently-opened-recipes";
+
 export default function Home() {
   const [time] = useState(getTimeOfDay);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -162,27 +175,88 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
+    function isMobile() {
+      return typeof window !== "undefined" && window.matchMedia?.("(max-width: 768px)")?.matches;
+    }
+
     async function fetchRecent() {
+      setLoadingRecipes(true);
+
+      const useRecentlyOpened = isMobile();
+
+      if (useRecentlyOpened) {
+        let ids: string[] = [];
+        try {
+          const raw = localStorage.getItem(RECENTLY_OPENED_KEY);
+          const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+          ids = Array.isArray(parsed) ? (parsed.filter((v) => typeof v === "string") as string[]) : [];
+        } catch {
+          ids = [];
+        }
+
+        const recentIds = ids.slice(0, 4);
+        if (recentIds.length === 0) {
+          setRecipes([]);
+          setLoadingRecipes(false);
+          return;
+        }
+
+        const { data } = await supabase
+          .from("recipes")
+          .select("id, title, cover_image_url, created_at, recipe_categories(categories(id, name, emoji))")
+          .in("id", recentIds);
+
+        const rows = (data as RecentRecipeRow[] | null) ?? [];
+        const byId = new Map(rows.map((row) => [row.id, row]));
+        const mapped = recentIds
+          .map((id) => byId.get(id))
+          .filter(Boolean)
+          .map((recipe) => ({
+            id: recipe!.id,
+            title: recipe!.title,
+            cover_image_url: recipe!.cover_image_url,
+            created_at: recipe!.created_at,
+            categories: getRecipeCategories(recipe!.recipe_categories),
+          }));
+
+        const resolved = await Promise.all(
+          mapped.map(async (recipe) => ({
+            ...recipe,
+            cover_image_url: await resolveCoverImageUrl(recipe.cover_image_url),
+          }))
+        );
+
+        setRecipes(resolved);
+        setLoadingRecipes(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("recipes")
-        .select("id, title, cover_image_url, created_at, recipe_categories(categories(name))")
+        .select("id, title, cover_image_url, created_at, recipe_categories(categories(id, name, emoji))")
         .order("created_at", { ascending: false })
         .limit(6);
 
-      if (data) {
-        const rows = data as RecentRecipeRow[];
-        setRecipes(
-          rows.map((recipe) => ({
-            id: recipe.id,
-            title: recipe.title,
-            cover_image_url: recipe.cover_image_url,
-            created_at: recipe.created_at,
-            category_name: getCategoryName(recipe.recipe_categories),
-          }))
-        );
-      }
+      const rows = (data as RecentRecipeRow[] | null) ?? [];
+      const mapped = rows.map((recipe) => ({
+          id: recipe.id,
+          title: recipe.title,
+          cover_image_url: recipe.cover_image_url,
+          created_at: recipe.created_at,
+          categories: getRecipeCategories(recipe.recipe_categories),
+        }));
+
+      const resolved = await Promise.all(
+        mapped.map(async (recipe) => ({
+          ...recipe,
+          cover_image_url: await resolveCoverImageUrl(recipe.cover_image_url),
+        }))
+      );
+
+      setRecipes(resolved);
       setLoadingRecipes(false);
     }
+
     fetchRecent();
 
     async function fetchFavorites() {
@@ -194,15 +268,22 @@ export default function Home() {
 
       if (data) {
         const rows = data as FavoriteRecipeRow[];
-        setFavorites(
-          rows.map((recipe) => ({
+        const mapped = rows.map((recipe) => ({
             id: recipe.id,
             title: recipe.title,
             cover_image_url: recipe.cover_image_url,
             created_at: "",
-            category_name: null,
+            categories: [],
+          }));
+
+        const resolved = await Promise.all(
+          mapped.map(async (recipe) => ({
+            ...recipe,
+            cover_image_url: await resolveCoverImageUrl(recipe.cover_image_url),
           }))
         );
+
+        setFavorites(resolved);
       }
       setLoadingFavorites(false);
     }
@@ -257,7 +338,12 @@ export default function Home() {
         ) : (
           <div className="recipe-grid">
             {recipes.map((recipe) => (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card" style={{ textDecoration: "none" }}>
+              <Link
+                key={recipe.id}
+                href={`/recipes/${recipe.id}`}
+                className="recipe-card recipe-card-vertical"
+                style={{ textDecoration: "none" }}
+              >
                 {recipe.cover_image_url && (
                   <Image
                     src={recipe.cover_image_url}
@@ -268,10 +354,16 @@ export default function Home() {
                     unoptimized
                   />
                 )}
-                <div className="recipe-info">
+                <div className="recipe-info recipe-info-card">
                   <span className="recipe-name">{recipe.title}</span>
-                  {recipe.category_name && (
-                    <span className="recipe-tag">{recipe.category_name}</span>
+                  {recipe.categories.length > 0 && (
+                    <div className="recipe-card-tags">
+                      {recipe.categories.slice(0, 3).map((category) => (
+                        <span key={category.id} className="recipe-category-chip">
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
               </Link>

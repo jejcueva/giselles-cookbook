@@ -2,128 +2,210 @@
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
+import { resolveCoverImageUrl } from "@/lib/storage-images";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+
+type Category = {
+  id: string;
+  name: string;
+  emoji: string | null;
+};
+
+type CategoryRelation = {
+  categories: Category | Category[] | null;
+};
 
 type Recipe = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  category_name: string | null;
+  categories: Category[];
 };
 
 type RecipeRow = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  recipe_categories:
-    | Array<{ categories: { name: string | null } | null } | null>
-    | null;
+  recipe_categories: CategoryRelation[] | null;
 };
 
-type RecipeTagRow = {
-  tag: string | null;
-};
+function getRecipeCategories(relations: RecipeRow["recipe_categories"]): Category[] {
+  const seen = new Set<string>();
+  const categories: Category[] = [];
 
-type TaggedRecipeRow = {
-  recipes: RecipeRow | null;
-};
+  for (const relation of relations ?? []) {
+    const nodes = relation?.categories;
+    const categoryList = Array.isArray(nodes) ? nodes : nodes ? [nodes] : [];
+
+    for (const category of categoryList) {
+      if (!category?.id || !category.name || seen.has(category.id)) {
+        continue;
+      }
+
+      seen.add(category.id);
+      categories.push({
+        id: category.id,
+        name: category.name,
+        emoji: category.emoji ?? null,
+      });
+    }
+  }
+
+  return categories;
+}
 
 function mapRecipe(row: RecipeRow): Recipe {
   return {
     id: row.id,
     title: row.title,
     cover_image_url: row.cover_image_url,
-    category_name: row.recipe_categories?.[0]?.categories?.name ?? null,
+    categories: getRecipeCategories(row.recipe_categories),
   };
+}
+
+async function withResolvedImages(recipes: Recipe[]): Promise<Recipe[]> {
+  const resolved = await Promise.all(
+    recipes.map(async (recipe) => ({
+      ...recipe,
+      cover_image_url: await resolveCoverImageUrl(recipe.cover_image_url),
+    }))
+  );
+  return resolved;
 }
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategoryIds, setActiveCategoryIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [allTags, setAllTags] = useState<string[]>([]);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [showNewTag, setShowNewTag] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchInitialData() {
+    let isActive = true;
+
+    async function fetchData() {
       setLoading(true);
 
-      const [recipesResult, tagsResult] = await Promise.all([
+      const [recipesResult, categoriesResult] = await Promise.all([
         supabase
           .from("recipes")
-          .select("id, title, cover_image_url, recipe_categories(categories(name))")
+          .select("id, title, cover_image_url, recipe_categories(categories(id, name, emoji))")
           .order("created_at", { ascending: false }),
-        supabase.from("recipe_tags").select("tag"),
+        supabase.from("categories").select("id, name, emoji").order("name"),
       ]);
 
+      if (!isActive) {
+        return;
+      }
+
       const recipeRows = (recipesResult.data as RecipeRow[] | null) ?? [];
-      setRecipes(recipeRows.map(mapRecipe));
+      const categoryRows = (categoriesResult.data as Category[] | null) ?? [];
 
-      const tagRows = (tagsResult.data as RecipeTagRow[] | null) ?? [];
-      const uniqueTags = [
-        ...new Set(tagRows.map((row) => row.tag).filter((tag): tag is string => Boolean(tag))),
-      ];
-      setAllTags(uniqueTags.sort());
-
+      const mapped = recipeRows.map(mapRecipe);
+      setRecipes(await withResolvedImages(mapped));
+      setCategories(
+        categoryRows.filter((category) => Boolean(category.id && category.name))
+      );
       setLoading(false);
     }
 
-    void fetchInitialData();
+    void fetchData();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
-  async function fetchFiltered(tag: string | null) {
-    setActiveTag(tag);
-    setLoading(true);
-
-    if (!tag) {
-      const { data } = await supabase
-        .from("recipes")
-        .select("id, title, cover_image_url, recipe_categories(categories(name))")
-        .order("created_at", { ascending: false });
-
-      const rows = (data as RecipeRow[] | null) ?? [];
-      setRecipes(rows.map(mapRecipe));
-      setLoading(false);
-      return;
-    }
-
-    const { data } = await supabase
-      .from("recipe_tags")
-      .select("recipes(id, title, cover_image_url, recipe_categories(categories(name)))")
-      .eq("tag", tag);
-
-    const rows = (data as TaggedRecipeRow[] | null) ?? [];
-    const filteredRows = rows
-      .map((row) => row.recipes)
-      .filter((recipe): recipe is RecipeRow => recipe !== null);
-
-    setRecipes(filteredRows.map(mapRecipe));
-    setLoading(false);
+  function toggleCategory(categoryId: string) {
+    setActiveCategoryIds((current) =>
+      current.includes(categoryId)
+        ? current.filter((id) => id !== categoryId)
+        : [...current, categoryId]
+    );
   }
+
+  async function createCategory() {
+    const name = newTagName.trim();
+    if (!name) return;
+    const { data, error } = await supabase
+      .from("categories")
+      .insert({ name })
+      .select("id, name, emoji")
+      .single();
+    if (error || !data) return;
+    setCategories((prev) => [...prev, data]);
+    setNewTagName("");
+    setShowNewTag(false);
+  }
+
+  const filteredRecipes =
+    activeCategoryIds.length === 0
+      ? recipes
+      : recipes.filter((recipe) =>
+          recipe.categories.some((category) =>
+            activeCategoryIds.includes(category.id)
+          )
+        );
 
   return (
     <AppShell>
       <section className="dashboard-section">
-        <h1 className="section-title">All Recipes</h1>
-        {allTags.length > 0 && (
-          <div className="tag-filter-row">
-            <button type="button" className={`tag-filter-chip ${activeTag === null ? "active" : ""}`} onClick={() => fetchFiltered(null)}>All</button>
-            {allTags.map((tag) => (
-              <button key={tag} type="button" className={`tag-filter-chip ${activeTag === tag ? "active" : ""}`} onClick={() => fetchFiltered(tag)}>{tag}</button>
-            ))}
+        <h1 className="section-title">Recipes</h1>
+        <p className="section-subtitle">
+          Use Filters to choose categories and refine the recipes below.
+        </p>
+
+        {categories.length > 0 && (
+          <div className="filters-top-row" aria-label="Recipe filters">
+            <button
+              type="button"
+              className={`tag-filter-chip filters-trigger ${
+                filtersOpen || activeCategoryIds.length > 0 ? "active" : ""
+              }`}
+              onClick={() => setFiltersOpen(true)}
+            >
+              <span>Filters</span>
+              <span className="filters-count">
+                {activeCategoryIds.length}
+              </span>
+            </button>
+            {activeCategoryIds.length > 0 && (
+              <button
+                type="button"
+                className="tag-filter-chip filters-clear"
+                onClick={() => {
+                  setActiveCategoryIds([]);
+                }}
+              >
+                Clear
+              </button>
+            )}
           </div>
         )}
+
         {loading ? (
           <p className="empty-state-text">Loading...</p>
-        ) : recipes.length === 0 ? (
+        ) : filteredRecipes.length === 0 ? (
           <div className="empty-state">
-            <p className="empty-state-text">No recipes yet â€” add your first one!</p>
+            <p className="empty-state-text">
+              {activeCategoryIds.length === 0
+                ? "No recipes yet - add your first one!"
+                : "No recipes match those category tags yet."}
+            </p>
           </div>
         ) : (
           <div className="recipe-grid">
-            {recipes.map((recipe) => (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card" style={{ textDecoration: "none", flexDirection: "column", alignItems: "stretch" }}>
+            {filteredRecipes.map((recipe) => (
+              <Link
+                key={recipe.id}
+                href={`/recipes/${recipe.id}`}
+                className="recipe-card recipe-card-vertical"
+                style={{ textDecoration: "none" }}
+              >
                 {recipe.cover_image_url && (
                   <Image
                     src={recipe.cover_image_url}
@@ -134,12 +216,115 @@ export default function RecipesPage() {
                     unoptimized
                   />
                 )}
-                <div className="recipe-info">
+                <div className="recipe-info recipe-info-card">
                   <span className="recipe-name">{recipe.title}</span>
-                  {recipe.category_name && <span className="recipe-tag">{recipe.category_name}</span>}
+                  {recipe.categories.length > 0 && (
+                    <div className="recipe-card-tags">
+                      {recipe.categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="recipe-category-chip"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
+          </div>
+        )}
+
+        {filtersOpen && categories.length > 0 && (
+          <div
+            className="filters-sheet-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filter recipes"
+          >
+            <div className="filters-sheet">
+              <div className="filters-sheet-header">
+                <h2 className="filters-sheet-title">Filters</h2>
+                <button
+                  type="button"
+                  className="filters-done-button"
+                  onClick={() => setFiltersOpen(false)}
+                >
+                  Done
+                </button>
+              </div>
+
+              <div className="filters-section">
+                <div className="filters-section-label">Categories</div>
+                <div
+                  className="filters-chips-row"
+                  role="group"
+                  aria-label="Filter recipes by category"
+                >
+                  <button
+                    type="button"
+                    className={`tag-filter-chip ${
+                      activeCategoryIds.length === 0 ? "active" : ""
+                    }`}
+                    onClick={() => setActiveCategoryIds([])}
+                  >
+                    All
+                  </button>
+                  {categories.map((category) => {
+                    const isActive = activeCategoryIds.includes(category.id);
+
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        className={`tag-filter-chip ${
+                          isActive ? "active" : ""
+                        }`}
+                        onClick={() => toggleCategory(category.id)}
+                        aria-pressed={isActive}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className="tag-filter-chip tag-filter-add"
+                    onClick={() => setShowNewTag((v) => !v)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                {showNewTag && (
+                  <div className="filters-new-category-row">
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Category name"
+                      value={newTagName}
+                      onChange={(e) => setNewTagName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          createCategory();
+                        }
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={createCategory}
+                      style={{ padding: "0.5rem 1rem" }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </section>

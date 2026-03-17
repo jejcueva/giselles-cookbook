@@ -120,7 +120,6 @@ function NewRecipeContent() {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryEmoji, setNewCategoryEmoji] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(initialPrefill?.imageUrl ?? null);
 
@@ -136,7 +135,7 @@ function NewRecipeContent() {
     if (!newCategoryName.trim()) return;
     const { data } = await supabase
       .from("categories")
-      .insert({ name: newCategoryName.trim(), emoji: newCategoryEmoji.trim() || null })
+      .insert({ name: newCategoryName.trim() })
       .select("id, name, emoji")
       .single();
     if (data) {
@@ -144,7 +143,6 @@ function NewRecipeContent() {
       setSelectedCategoryId(data.id);
       setShowNewCategory(false);
       setNewCategoryName("");
-      setNewCategoryEmoji("");
     }
   }
 
@@ -508,14 +506,6 @@ function NewRecipeContent() {
             </div>
             {showNewCategory && (
               <div className="new-category-row">
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Emoji"
-                  value={newCategoryEmoji}
-                  onChange={(e) => setNewCategoryEmoji(e.target.value)}
-                  style={{ flex: "0 0 64px" }}
-                />
                 <input
                   type="text"
                   className="form-input"

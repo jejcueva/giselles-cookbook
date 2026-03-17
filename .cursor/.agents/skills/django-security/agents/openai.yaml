@@ -1,0 +1,6 @@
+interface:
+  display_name: "Django Security"
+  short_description: "Django security best practices, authentication, authorization, CSRF protection, SQL injection prevention, XSS prevention, and secure deployment configurations."
+  default_prompt: "Use the Django Security skill for this task."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Recipes – Filters & Categories Mockups (v2)</title>
+    <style>
+      :root{
+        --bg:#fff8f0;
+        --text:#4a3728;
+        --secondary:#a67b5b;
+        --surface:#fffdfb;
+        --surface-warm:#fff9f5;
+        --border:#ebd8c8;
+        --border-soft:#f0e2d8;
+        --primary:#f2b8c6;
+        --primary-deep:#ce9ca8;
+        --shadow: 0 14px 30px rgba(74,55,40,.10);
+        --shadow-soft: 0 10px 22px rgba(74,55,40,.08);
+      }
+      *{ box-sizing:border-box; }
+      body{
+        margin:0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        background: linear-gradient(175deg, #fffbf8 0%, #fff8f2 50%, #fef6f0 100%);
+        color: var(--text);
+      }
+      .wrap{
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 18px 54px;
+      }
+      h1{
+        font-size: 22px;
+        margin: 0 0 6px;
+        letter-spacing: .2px;
+      }
+      .sub{
+        color: var(--secondary);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 18px;
+      }
+      .grid{
+        display:grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      @media (max-width: 900px){
+        .grid{ grid-template-columns: 1fr; }
+      }
+      .card{
+        background: linear-gradient(180deg, var(--surface) 0%, var(--surface-warm) 100%);
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+        overflow:hidden;
+      }
+      .card-hd{
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-soft);
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        background: rgba(242,184,198,.35);
+        border: 1px solid rgba(242,184,198,.55);
+        font-weight: 800;
+        flex: 0 0 auto;
+      }
+      .title{
+        font-weight: 800;
+        font-size: 14px;
+        margin: 0;
+      }
+      .desc{
+        margin: 3px 0 0;
+        color: var(--secondary);
+        font-size: 12.5px;
+        line-height: 1.45;
+      }
+      .mock{
+        padding: 14px;
+      }
+      .phone{
+        width: 310px;
+        margin: 0 auto;
+        background: var(--bg);
+        border: 10px solid #171717;
+        border-radius: 34px;
+        box-shadow: var(--shadow);
+        overflow:hidden;
+      }
+      .phone-inner{
+        background: var(--bg);
+        min-height: 580px;
+        padding: 14px 12px;
+      }
+      .search{
+        display:flex;
+        align-items:center;
+        gap: 8px;
+        padding: 9px 10px;
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        background: rgba(255,255,255,.65);
+      }
+      .search .dot{
+        width: 10px; height: 10px; border-radius: 50%;
+        background: rgba(166,123,91,.25);
+        border: 1px solid rgba(166,123,91,.25);
+      }
+      .search .placeholder{
+        color: rgba(74,55,40,.45);
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .row{
+        display:flex;
+        align-items:center;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .pill{
+        display:inline-flex;
+        align-items:center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 12.5px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: .1px;
+      }
+      .pill.primary{
+        background: linear-gradient(180deg, var(--primary) 0%, var(--primary-deep) 100%);
+        border-color: var(--primary-deep);
+        color: #3a2a1a;
+        box-shadow: 0 2px 10px rgba(242,184,198,.35);
+      }
+      .pill.ghost{
+        background: rgba(255,255,255,.55);
+      }
+      .pill.icon{
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        justify-content:center;
+        font-weight: 900;
+      }
+      .pill .count{
+        background: rgba(74,55,40,.09);
+        border: 1px solid rgba(74,55,40,.10);
+        border-radius: 999px;
+        padding: 3px 6px;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .scroll{
+        display:flex;
+        gap: 8px;
+        overflow-x:auto;
+        padding-bottom: 6px;
+        margin-top: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .scroll::-webkit-scrollbar{ height: 8px; }
+      .scroll::-webkit-scrollbar-thumb{ background: rgba(166,123,91,.20); border-radius: 999px; }
+      .section-label{
+        margin-top: 12px;
+        font-size: 11px;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+        color: rgba(166,123,91,.95);
+        font-weight: 900;
+      }
+      .sheet{
+        margin-top: 14px;
+        border-radius: 18px;
+        border: 1px dashed rgba(235,216,200,.9);
+        background: rgba(255,253,251,.6);
+        padding: 12px;
+      }
+      .sheet.hard{
+        border-style: solid;
+        background: rgba(255,253,251,.85);
+      }
+      .sheet-hd{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        font-weight: 900;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+      .hint{
+        color: rgba(74,55,40,.55);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .divider{
+        height: 1px;
+        background: rgba(235,216,200,.8);
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Recipes – Filters & Categories (v2)</h1>
+      <div class="sub">
+        No emojis, no Sort button — just the soft pill design language. Pick the one that feels right and I’ll implement it.
+      </div>
+
+      <div class="grid">
+        <!-- Option A -->
+        <div class="card">
+          <div class="card-hd">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div class="badge">A</div>
+              <div>
+                <p class="title">Filters pill + always-visible category pills (scrollable)</p>
+                <p class="desc">Categories are quick-tap pills under the search. Filters opens a bottom sheet for “advanced” filters later.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mock">
+            <div class="phone">
+              <div class="phone-inner">
+                <div class="search">
+                  <div class="dot"></div>
+                  <div class="placeholder">Search by name, cuisine, or description</div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <div class="pill ghost">Filters <span class="count">0</span></div>
+                  <div class="pill ghost">Clear</div>
+                </div>
+
+                <div class="scroll" aria-label="Categories">
+                  <div class="pill primary">All</div>
+                  <div class="pill">Cafe</div>
+                  <div class="pill">Dessert</div>
+                  <div class="pill">Dinner</div>
+                  <div class="pill">Quick</div>
+                  <div class="pill icon">+</div>
+                </div>
+
+                <div class="section-label">Results</div>
+                <div class="sheet">
+                  <div class="sheet-hd">
+                    <span>Classic Cheesecake</span>
+                    <span class="hint">★ ★ ★ ★ ☆</span>
+                  </div>
+                  <div class="hint">A recipe card preview…</div>
+                </div>
+
+                <div class="section-label">Sheet style (when Filters is tapped)</div>
+                <div class="sheet hard">
+                  <div class="sheet-hd">
+                    <span>Filters</span>
+                    <span class="hint">Done</span>
+                  </div>
+                  <div class="hint">More filters can go here later</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Option B -->
+        <div class="card">
+          <div class="card-hd">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div class="badge">B</div>
+              <div>
+                <p class="title">Clean page; categories are selected inside the Filters bottom sheet</p>
+                <p class="desc">Top stays minimal. Filters shows selected category count. Great if you want the page to feel “clean”.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mock">
+            <div class="phone">
+              <div class="phone-inner">
+                <div class="search">
+                  <div class="dot"></div>
+                  <div class="placeholder">Search recipes…</div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <div class="pill primary">Filters <span class="count">2</span></div>
+                  <div class="pill ghost">Clear</div>
+                </div>
+
+                <div class="section-label">Results</div>
+                <div class="sheet">
+                  <div class="sheet-hd">
+                    <span>Classic Cheesecake</span>
+                    <span class="hint">★ ★ ★ ★ ☆</span>
+                  </div>
+                  <div class="hint">A recipe card preview…</div>
+                </div>
+
+                <div class="section-label">Bottom sheet preview</div>
+                <div class="sheet hard">
+                  <div class="sheet-hd">
+                    <span>Filters</span>
+                    <span class="hint">Done</span>
+                  </div>
+                  <div class="hint" style="margin-bottom:8px;">Categories</div>
+                  <div class="row" style="margin-top:6px;">
+                    <div class="pill">Cafe</div>
+                    <div class="pill primary">Dessert</div>
+                    <div class="pill">Dinner</div>
+                    <div class="pill primary">Quick</div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="hint">More filters can go here later</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;color:var(--secondary);font-size:13px;line-height:1.55;">
+        Reply with <b>A</b> or <b>B</b>. If you want something in-between, say what to merge.
+      </div>
+    </div>
+  </body>
+</html>

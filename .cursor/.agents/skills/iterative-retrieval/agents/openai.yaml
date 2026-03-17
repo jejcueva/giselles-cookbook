@@ -1,0 +1,6 @@
+interface:
+  display_name: "Iterative Retrieval"
+  short_description: "Pattern for progressively refining context retrieval to solve the subagent context problem"
+  default_prompt: "Use the Iterative Retrieval skill for this task."
+policy:
+  allow_implicit_invocation: true

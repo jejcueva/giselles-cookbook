@@ -23,6 +23,7 @@ type RecipeData = {
 };
 
 const RECIPE_BLOCK_REGEX = /:::recipe\s*([\s\S]*?)\s*:::/;
+const CHAT_STORAGE_KEY = "cute-cookbook-ai-chat";
 
 function parseRecipeBlock(content: string): { text: string; recipe: RecipeData | null } {
   const match = content.match(RECIPE_BLOCK_REGEX);
@@ -108,8 +109,46 @@ export default function AIAssistantPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { messages?: Message[] };
+      if (Array.isArray(parsed.messages)) {
+        setMessages(
+          parsed.messages.filter(
+            (m): m is Message =>
+              m &&
+              (m.role === "user" || m.role === "assistant") &&
+              typeof m.content === "string"
+          )
+        );
+      }
+    } catch {
+      // ignore bad data
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify({ messages }));
+    } catch {
+      // ignore storage failures
+    }
+  }, [messages]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function clearChat() {
+    setMessages([]);
+    try {
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      // ignore storage failures
+    }
+  }
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
@@ -158,6 +197,16 @@ export default function AIAssistantPage() {
             </div>
           )}
           <div ref={bottomRef} />
+        </div>
+        <div className="chat-toolbar">
+          <button
+            type="button"
+            className="btn-secondary chat-clear-button"
+            onClick={clearChat}
+            disabled={messages.length === 0}
+          >
+            Clear chat
+          </button>
         </div>
         <form className="chat-input-bar" onSubmit={sendMessage}>
           <input

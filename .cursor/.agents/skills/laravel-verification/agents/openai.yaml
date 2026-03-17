@@ -1,0 +1,6 @@
+interface:
+  display_name: "Laravel Verification"
+  short_description: "Verification loop for Laravel projects: env checks, linting, static analysis, tests with coverage, security scans, and deployment readiness."
+  default_prompt: "Use the Laravel Verification skill for this task."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perl Security"
+  short_description: "Comprehensive Perl security covering taint mode, input validation, safe process execution, DBI parameterized queries, web security (XSS/SQLi/CSRF), and perlcritic security policies."
+  default_prompt: "Use the Perl Security skill for this task."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Golang Patterns"
+  short_description: "Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications."
+  default_prompt: "Use the Golang Patterns skill for this task."
+policy:
+  allow_implicit_invocation: true

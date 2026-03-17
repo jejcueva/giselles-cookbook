@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveCoverImageUrl } from "@/lib/storage-images";
 
 type Recipe = {
   id: string;
@@ -29,6 +30,22 @@ type Recipe = {
 type Tag = { tag: string };
 type CategoryJoin = { categories: { id: string; name: string; emoji: string | null } };
 
+const RECENTLY_OPENED_KEY = "cute-cookbook-recently-opened-recipes";
+const RECENTLY_OPENED_MAX = 20;
+
+function trackRecentlyOpenedRecipe(recipeId: string) {
+  try {
+    const raw = localStorage.getItem(RECENTLY_OPENED_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    const prev = Array.isArray(parsed) ? (parsed.filter((v) => typeof v === "string") as string[]) : [];
+
+    const next = [recipeId, ...prev.filter((id) => id !== recipeId)].slice(0, RECENTLY_OPENED_MAX);
+    localStorage.setItem(RECENTLY_OPENED_KEY, JSON.stringify(next));
+  } catch {
+    // ignore storage failures (private mode, quota, etc.)
+  }
+}
+
 export default function RecipeDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -36,7 +53,6 @@ export default function RecipeDetailPage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string; emoji: string | null }[]>([]);
-  const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -47,7 +63,10 @@ export default function RecipeDetailPage() {
         supabase.from("recipe_tags").select("tag").eq("recipe_id", recipeId),
         supabase.from("recipe_categories").select("categories(id, name, emoji)").eq("recipe_id", recipeId),
       ]);
-      if (recipeResult.data) setRecipe(recipeResult.data);
+      if (recipeResult.data) {
+        const cover_image_url = await resolveCoverImageUrl(recipeResult.data.cover_image_url);
+        setRecipe({ ...recipeResult.data, cover_image_url });
+      }
       if (tagsResult.data) setTags(tagsResult.data.map((t: Tag) => t.tag));
       if (catsResult.data) {
         setCategories(
@@ -59,13 +78,9 @@ export default function RecipeDetailPage() {
     fetchRecipe();
   }, [recipeId]);
 
-  function toggleIngredient(index: number) {
-    setCheckedIngredients((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) next.delete(index); else next.add(index);
-      return next;
-    });
-  }
+  useEffect(() => {
+    trackRecentlyOpenedRecipe(recipeId);
+  }, [recipeId]);
 
   async function toggleFavorite() {
     if (!recipe) return;
@@ -150,9 +165,12 @@ export default function RecipeDetailPage() {
             <h2 className="recipe-detail-section-title">Ingredients</h2>
             <ul className="ingredient-checklist">
               {recipe.ingredients.map((ing, i) => (
-                <li key={i} className={`ingredient-check-item ${checkedIngredients.has(i) ? "checked" : ""}`} onClick={() => toggleIngredient(i)}>
-                  <input type="checkbox" checked={checkedIngredients.has(i)} onChange={() => toggleIngredient(i)} className="ingredient-checkbox" />
-                  <span>{ing.amount && `${ing.amount} `}{ing.unit && `${ing.unit} `}{ing.name}</span>
+                <li key={i} className="ingredient-check-item">
+                  <span>
+                    {ing.amount && `${ing.amount} `}
+                    {ing.unit && `${ing.unit} `}
+                    {ing.name}
+                  </span>
                 </li>
               ))}
             </ul>

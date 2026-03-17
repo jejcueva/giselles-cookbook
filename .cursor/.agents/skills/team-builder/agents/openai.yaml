@@ -1,0 +1,6 @@
+interface:
+  display_name: "Team Builder"
+  short_description: "Interactive agent picker for composing and dispatching parallel teams"
+  default_prompt: "Use the Team Builder skill for this task."
+policy:
+  allow_implicit_invocation: true

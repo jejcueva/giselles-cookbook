@@ -1,0 +1,6 @@
+interface:
+  display_name: "Springboot Security"
+  short_description: "Spring Security best practices for authn/authz, validation, CSRF, secrets, headers, rate limiting, and dependency security in Java Spring Boot services."
+  default_prompt: "Use the Springboot Security skill for this task."
+policy:
+  allow_implicit_invocation: true

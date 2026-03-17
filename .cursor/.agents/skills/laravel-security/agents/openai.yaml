@@ -1,0 +1,6 @@
+interface:
+  display_name: "Laravel Security"
+  short_description: "Laravel security best practices for authn/authz, validation, CSRF, mass assignment, file uploads, secrets, rate limiting, and secure deployment."
+  default_prompt: "Use the Laravel Security skill for this task."
+policy:
+  allow_implicit_invocation: true

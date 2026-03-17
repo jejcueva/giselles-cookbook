@@ -1,155 +1,89 @@
-export type ThemeColors = {
-  primary: string;
-  secondary: string;
-  accent: string;
-  background: string;
-  text: string;
-  surface: string;
-  border: string;
-};
-
-export type Theme = {
-  id: string;
-  name: string;
-  colors: ThemeColors;
-  decoration: "none" | "hearts" | "shamrocks" | "pumpkins" | "leaves" | "snowflakes" | "sparkles";
-};
-
-export const THEMES: Theme[] = [
-  {
-    id: "cottagecore",
-    name: "Cottagecore",
-    colors: {
-      primary: "#f2b8c6",
-      secondary: "#a67b5b",
-      accent: "#a8bfa0",
-      background: "#fff8f0",
-      text: "#4a3728",
-      surface: "#fffdfb",
-      border: "#ebd8c8",
-    },
-    decoration: "none",
-  },
-  {
-    id: "valentines",
-    name: "Valentine's Day",
-    colors: {
-      primary: "#e8355a",
-      secondary: "#8b2252",
-      accent: "#ffb6c1",
-      background: "#fff0f3",
-      text: "#4a1525",
-      surface: "#fffbfc",
-      border: "#f5c6d0",
-    },
-    decoration: "hearts",
-  },
-  {
-    id: "stpatricks",
-    name: "St. Patrick's Day",
-    colors: {
-      primary: "#2e8b57",
-      secondary: "#daa520",
-      accent: "#98fb98",
-      background: "#f0fff0",
-      text: "#1a3a2a",
-      surface: "#f8fffa",
-      border: "#b8dcc8",
-    },
-    decoration: "shamrocks",
-  },
-  {
-    id: "halloween",
-    name: "Halloween",
-    colors: {
-      primary: "#ff6b1a",
-      secondary: "#9b59b6",
-      accent: "#8b008b",
-      background: "#1a1a2e",
-      text: "#f0e6d3",
-      surface: "#252540",
-      border: "#3a3a5c",
-    },
-    decoration: "pumpkins",
-  },
-  {
-    id: "thanksgiving",
-    name: "Thanksgiving",
-    colors: {
-      primary: "#cc5500",
-      secondary: "#8b4513",
-      accent: "#daa520",
-      background: "#fff8dc",
-      text: "#3a2510",
-      surface: "#fffdf5",
-      border: "#e0c8a0",
-    },
-    decoration: "leaves",
-  },
-  {
-    id: "christmas",
-    name: "Christmas",
-    colors: {
-      primary: "#c41e3a",
-      secondary: "#006400",
-      accent: "#ffd700",
-      background: "#fff8f0",
-      text: "#2a1a1a",
-      surface: "#fffdfb",
-      border: "#e0c8c8",
-    },
-    decoration: "snowflakes",
-  },
-  {
-    id: "newyears",
-    name: "New Year's",
-    colors: {
-      primary: "#ffd700",
-      secondary: "#c0c0c0",
-      accent: "#ffd700",
-      background: "#0d0d1a",
-      text: "#e8e8f0",
-      surface: "#1a1a2e",
-      border: "#3a3a5c",
-    },
-    decoration: "sparkles",
-  },
-];
-
-export const CUSTOM_COLORS = [
+// the 7 accent colors users can pick from
+export const UI_COLORS = [
   { name: "Pink", hex: "#f2b8c6" },
-  { name: "Rose", hex: "#e8355a" },
-  { name: "Coral", hex: "#ff7f7f" },
-  { name: "Brown", hex: "#a67b5b" },
-  { name: "Sage", hex: "#a8bfa0" },
-  { name: "Forest", hex: "#2e8b57" },
-  { name: "Lavender", hex: "#b8a9d4" },
   { name: "Blue", hex: "#6b9fd4" },
-  { name: "Gold", hex: "#daa520" },
+  { name: "Green", hex: "#6dba7a" },
+  { name: "Brown", hex: "#a67b5b" },
+  { name: "Red", hex: "#d45b5b" },
+  { name: "Black", hex: "#4a4a4a" },
+  { name: "Purple", hex: "#9b7fc4" },
 ];
 
-export function applyTheme(theme: Theme) {
+const DEFAULT_COLOR = "#f2b8c6";
+
+// parses hex to [r, g, b]
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+// darken a hex color by a percentage (0-1)
+function darken(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const d = (v: number) => Math.round(v * (1 - amount));
+  return `#${d(r).toString(16).padStart(2, "0")}${d(g).toString(16).padStart(2, "0")}${d(b).toString(16).padStart(2, "0")}`;
+}
+
+// lighten toward white by a percentage (0-1)
+function lighten(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const l = (v: number) => Math.round(v + (255 - v) * amount);
+  return `#${l(r).toString(16).padStart(2, "0")}${l(g).toString(16).padStart(2, "0")}${l(b).toString(16).padStart(2, "0")}`;
+}
+
+// relative luminance (0 = black, 1 = white)
+function luminance(hex: string): number {
+  const [r, g, b] = hexToRgb(hex).map((v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// picks a nice text color to sit on top of the primary color
+function textOnColor(hex: string): string {
+  const normalized = hex.toLowerCase();
+
+  // force white text for the original pink so it pops more
+  if (normalized === "#f2b8c6") {
+    return "#fff";
+  }
+
+  return luminance(hex) > 0.4 ? "#3a2a1a" : "#fff";
+}
+
+// sets all the primary-color css variables from a single hex
+export function applyColor(hex: string) {
   const root = document.documentElement;
-  root.style.setProperty("--color-primary", theme.colors.primary);
-  root.style.setProperty("--color-secondary", theme.colors.secondary);
-  root.style.setProperty("--color-accent", theme.colors.accent);
-  root.style.setProperty("--color-background", theme.colors.background);
-  root.style.setProperty("--color-text", theme.colors.text);
-  root.style.setProperty("--color-surface", theme.colors.surface);
-  root.style.setProperty("--color-border", theme.colors.border);
+  const [r, g, b] = hexToRgb(hex);
+  root.style.setProperty("--color-primary", hex);
+  root.style.setProperty("--color-primary-deep", darken(hex, 0.15));
+  root.style.setProperty("--color-primary-light", lighten(hex, 0.88));
+  root.style.setProperty("--color-primary-soft", lighten(hex, 0.78));
+  root.style.setProperty("--color-primary-shadow", `${r}, ${g}, ${b}`);
+  root.style.setProperty("--color-on-primary", textOnColor(hex));
 }
 
-export function applyCustomColor(hex: string) {
-  document.documentElement.style.setProperty("--color-primary", hex);
+export function getStoredColor(): string {
+  if (typeof window === "undefined") return DEFAULT_COLOR;
+  return localStorage.getItem("cookbook-color") || DEFAULT_COLOR;
 }
 
-export function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return THEMES[0];
-  const id = localStorage.getItem("cookbook-theme") || "cottagecore";
-  return THEMES.find((t) => t.id === id) || THEMES[0];
+export function storeColor(hex: string) {
+  localStorage.setItem("cookbook-color", hex);
 }
 
-export function getStoredCustomColor(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("cookbook-custom-color");
+export function isDarkMode(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("cookbook-dark") === "true";
+}
+
+export function setDarkMode(on: boolean) {
+  localStorage.setItem("cookbook-dark", String(on));
+  document.documentElement.setAttribute("data-theme", on ? "dark" : "light");
+}
+
+export function applyDarkMode() {
+  const dark = isDarkMode();
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 }

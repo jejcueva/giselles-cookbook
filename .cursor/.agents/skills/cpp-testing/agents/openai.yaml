@@ -1,0 +1,6 @@
+interface:
+  display_name: "CPP Testing"
+  short_description: "Use only when writing/updating/fixing C++ tests, configuring GoogleTest/CTest, diagnosing failing or flaky tests, or adding coverage/sanitizers."
+  default_prompt: "Use the CPP Testing skill for this task."
+policy:
+  allow_implicit_invocation: true

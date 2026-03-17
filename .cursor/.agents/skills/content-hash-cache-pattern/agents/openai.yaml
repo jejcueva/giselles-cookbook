@@ -1,0 +1,6 @@
+interface:
+  display_name: "Content Hash Cache Pattern"
+  short_description: "Cache expensive file processing results using SHA-256 content hashes — path-independent, auto-invalidating, with service layer separation."
+  default_prompt: "Use the Content Hash Cache Pattern skill for this task."
+policy:
+  allow_implicit_invocation: true

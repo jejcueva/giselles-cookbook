@@ -1,0 +1,6 @@
+interface:
+  display_name: "Rust Testing"
+  short_description: "Rust testing patterns including unit tests, integration tests, async testing, property-based testing, mocking, and coverage. Follows TDD methodology."
+  default_prompt: "Use the Rust Testing skill for this task."
+policy:
+  allow_implicit_invocation: true

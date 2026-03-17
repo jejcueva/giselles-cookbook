@@ -1,0 +1,6 @@
+interface:
+  display_name: "Visa DOC Translate"
+  short_description: "Translate visa application documents (images) to English and create a bilingual PDF with original and translation"
+  default_prompt: "Use the Visa DOC Translate skill for this task."
+policy:
+  allow_implicit_invocation: true

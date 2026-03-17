@@ -1,0 +1,6 @@
+interface:
+  display_name: "Docker Patterns"
+  short_description: "Docker and Docker Compose patterns for local development, container security, networking, volume strategies, and multi-service orchestration."
+  default_prompt: "Use the Docker Patterns skill for this task."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Swift Concurrency 6 2"
+  short_description: "Swift 6.2 Approachable Concurrency — single-threaded by default, @concurrent for explicit background offloading, isolated conformances for main actor types."
+  default_prompt: "Use the Swift Concurrency 6 2 skill for this task."
+policy:
+  allow_implicit_invocation: true

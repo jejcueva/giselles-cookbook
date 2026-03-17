@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
@@ -26,10 +26,10 @@ export default function EditRecipePage() {
   const [fat, setFat] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", amount: "", unit: "" }]);
   const [instructions, setInstructions] = useState<string[]>([""]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -61,7 +61,6 @@ export default function EditRecipePage() {
         if (r.cover_image_url) setCoverPreview(r.cover_image_url);
       }
 
-      if (tagsResult.data) setTags(tagsResult.data.map((t: { tag: string }) => t.tag));
       if (catsResult.data?.[0]) setSelectedCategoryId((catsResult.data[0] as { category_id: string }).category_id);
       if (allCats.data) setCategories(allCats.data);
 
@@ -80,17 +79,28 @@ export default function EditRecipePage() {
   function updateInstruction(i: number, value: string) {
     const u = [...instructions]; u[i] = value; setInstructions(u);
   }
-  function addTag() {
-    const t = tagInput.trim().toLowerCase();
-    if (t && !tags.includes(t)) setTags([...tags, t]);
-    setTagInput("");
-  }
-  function removeTag(tag: string) { setTags(tags.filter((t) => t !== tag)); }
   function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
+  }
+
+  async function createCategory() {
+    if (!newCategoryName.trim()) return;
+
+    const { data } = await supabase
+      .from("categories")
+      .insert({ name: newCategoryName.trim() })
+      .select("id, name, emoji")
+      .single();
+
+    if (data) {
+      setCategories([...categories, data]);
+      setSelectedCategoryId(data.id);
+      setShowNewCategory(false);
+      setNewCategoryName("");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -133,11 +143,6 @@ export default function EditRecipePage() {
       await supabase.from("recipe_categories").delete().eq("recipe_id", recipeId);
       if (selectedCategoryId) {
         await supabase.from("recipe_categories").insert({ recipe_id: recipeId, category_id: selectedCategoryId });
-      }
-
-      await supabase.from("recipe_tags").delete().eq("recipe_id", recipeId);
-      if (tags.length > 0) {
-        await supabase.from("recipe_tags").insert(tags.map((tag) => ({ recipe_id: recipeId, tag })));
       }
 
       router.push(`/recipes/${recipeId}`);
@@ -226,25 +231,47 @@ export default function EditRecipePage() {
 
           <div className="form-label">
             Category
-            <select className="form-select" value={selectedCategoryId} onChange={(e) => setSelectedCategoryId(e.target.value)}>
-              <option value="">None</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.emoji ? `${cat.emoji} ` : ""}{cat.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-label">
-            Tags
-            <div className="tag-input-row">
-              <input type="text" className="form-input" placeholder="Add a tag and press Enter" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} style={{ flex: 1 }} />
-              <button type="button" className="btn-secondary" onClick={addTag} style={{ padding: "0.5rem 1rem" }}>Add</button>
-            </div>
-            {tags.length > 0 && (
-              <div className="tag-list">
-                {tags.map((tag) => (
-                  <span key={tag} className="tag-chip">{tag}<button type="button" className="tag-remove" onClick={() => removeTag(tag)}>Ã—</button></span>
+            <div className="category-select-row">
+              <select
+                className="form-select"
+                value={selectedCategoryId}
+                onChange={(e) => {
+                  if (e.target.value === "__new__") {
+                    setShowNewCategory(true);
+                    setSelectedCategoryId("");
+                  } else {
+                    setSelectedCategoryId(e.target.value);
+                    setShowNewCategory(false);
+                  }
+                }}
+              >
+                <option value="">None</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.emoji ? `${cat.emoji} ` : ""}{cat.name}
+                  </option>
                 ))}
+                <option value="__new__">+ New Category</option>
+              </select>
+            </div>
+            {showNewCategory && (
+              <div className="new-category-row">
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={createCategory}
+                  style={{ padding: "0.5rem 1rem" }}
+                >
+                  Add
+                </button>
               </div>
             )}
           </div>

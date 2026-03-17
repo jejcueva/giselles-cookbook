@@ -1,0 +1,6 @@
+interface:
+  display_name: "Deployment Patterns"
+  short_description: "Deployment workflows, CI/CD pipeline patterns, Docker containerization, health checks, rollback strategies, and production readiness checklists for web applications."
+  default_prompt: "Use the Deployment Patterns skill for this task."
+policy:
+  allow_implicit_invocation: true

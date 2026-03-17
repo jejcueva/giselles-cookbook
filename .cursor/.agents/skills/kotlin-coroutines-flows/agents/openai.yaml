@@ -1,0 +1,6 @@
+interface:
+  display_name: "Kotlin Coroutines Flows"
+  short_description: "Kotlin Coroutines and Flow patterns for Android and KMP — structured concurrency, Flow operators, StateFlow, error handling, and testing."
+  default_prompt: "Use the Kotlin Coroutines Flows skill for this task."
+policy:
+  allow_implicit_invocation: true

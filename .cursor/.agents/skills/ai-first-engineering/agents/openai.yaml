@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI First Engineering"
+  short_description: "Engineering operating model for teams where AI agents generate a large share of implementation output."
+  default_prompt: "Use the AI First Engineering skill for this task."
+policy:
+  allow_implicit_invocation: true

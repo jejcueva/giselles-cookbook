@@ -1,0 +1,6 @@
+interface:
+  display_name: "Claude Devfleet"
+  short_description: "Orchestrate multi-agent coding tasks via Claude DevFleet — plan projects, dispatch parallel agents in isolated worktrees, monitor progress, and read structured reports."
+  default_prompt: "Use the Claude Devfleet skill for this task."
+policy:
+  allow_implicit_invocation: true

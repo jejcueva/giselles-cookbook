@@ -1,0 +1,6 @@
+interface:
+  display_name: "Kotlin Exposed Patterns"
+  short_description: "JetBrains Exposed ORM patterns including DSL queries, DAO pattern, transactions, HikariCP connection pooling, Flyway migrations, and repository pattern."
+  default_prompt: "Use the Kotlin Exposed Patterns skill for this task."
+policy:
+  allow_implicit_invocation: true

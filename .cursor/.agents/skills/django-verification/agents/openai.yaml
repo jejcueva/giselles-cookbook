@@ -1,0 +1,6 @@
+interface:
+  display_name: "Django Verification"
+  short_description: "\"Verification loop for Django projects: migrations, linting, tests with coverage, security scans, and deployment readiness checks before release or PR.\""
+  default_prompt: "Use the Django Verification skill for this task."
+policy:
+  allow_implicit_invocation: true

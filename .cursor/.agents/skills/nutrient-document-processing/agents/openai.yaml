@@ -1,0 +1,6 @@
+interface:
+  display_name: "Nutrient Document Processing"
+  short_description: "Process, convert, OCR, extract, redact, sign, and fill documents using the Nutrient DWS API. Works with PDFs, DOCX, XLSX, PPTX, HTML, and images."
+  default_prompt: "Use the Nutrient Document Processing skill for this task."
+policy:
+  allow_implicit_invocation: true

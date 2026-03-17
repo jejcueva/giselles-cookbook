@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Harness Construction"
+  short_description: "Design and optimize AI agent action spaces, tool definitions, and observation formatting for higher completion rates."
+  default_prompt: "Use the Agent Harness Construction skill for this task."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Swift Protocol DI Testing"
+  short_description: "Protocol-based dependency injection for testable Swift code — mock file system, network, and external APIs using focused protocols and Swift Testing."
+  default_prompt: "Use the Swift Protocol DI Testing skill for this task."
+policy:
+  allow_implicit_invocation: true

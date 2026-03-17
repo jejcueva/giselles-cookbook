@@ -1,0 +1,6 @@
+interface:
+  display_name: "Enterprise Agent OPS"
+  short_description: "Operate long-lived agent workloads with observability, security boundaries, and lifecycle management."
+  default_prompt: "Use the Enterprise Agent OPS skill for this task."
+policy:
+  allow_implicit_invocation: true

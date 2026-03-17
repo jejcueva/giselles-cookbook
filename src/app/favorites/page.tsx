@@ -2,33 +2,58 @@
 
 import { AppShell } from "@/components/app-shell";
 import { supabase } from "@/lib/supabase";
+import { resolveCoverImageUrl } from "@/lib/storage-images";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+
+type Category = {
+  id: string;
+  name: string;
+  emoji: string | null;
+};
+
+type CategoryRelation = {
+  categories: Category | Category[] | null;
+};
 
 type Recipe = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  category_name: string | null;
-};
-
-type CategoryNode = { name: string | null };
-type RecipeCategoryRelation = {
-  categories: CategoryNode | CategoryNode[] | null;
+  categories: Category[];
 };
 
 type FavoriteRecipeRow = {
   id: string;
   title: string;
   cover_image_url: string | null;
-  recipe_categories: RecipeCategoryRelation[] | null;
+  recipe_categories: CategoryRelation[] | null;
 };
 
-function getCategoryName(relations: FavoriteRecipeRow["recipe_categories"]): string | null {
-  const categories = relations?.[0]?.categories;
-  if (!categories) return null;
-  return Array.isArray(categories) ? categories[0]?.name ?? null : categories.name;
+function getRecipeCategories(relations: FavoriteRecipeRow["recipe_categories"]): Category[] {
+  const seen = new Set<string>();
+  const categories: Category[] = [];
+
+  for (const relation of relations ?? []) {
+    const nodes = relation?.categories;
+    const categoryList = Array.isArray(nodes) ? nodes : nodes ? [nodes] : [];
+
+    for (const category of categoryList) {
+      if (!category?.id || !category.name || seen.has(category.id)) {
+        continue;
+      }
+
+      seen.add(category.id);
+      categories.push({
+        id: category.id,
+        name: category.name,
+        emoji: category.emoji ?? null,
+      });
+    }
+  }
+
+  return categories;
 }
 
 export default function FavoritesPage() {
@@ -39,20 +64,29 @@ export default function FavoritesPage() {
     async function fetchFavs() {
       const { data } = await supabase
         .from("recipes")
-        .select("id, title, cover_image_url, recipe_categories(categories(name))")
+        .select(
+          "id, title, cover_image_url, recipe_categories(categories(id, name, emoji))"
+        )
         .eq("is_favorite", true)
         .order("created_at", { ascending: false });
-      if (data) {
-        const rows = data as FavoriteRecipeRow[];
-        setFavorites(
-          rows.map((recipe) => ({
-            id: recipe.id,
-            title: recipe.title,
-            cover_image_url: recipe.cover_image_url,
-            category_name: getCategoryName(recipe.recipe_categories),
-          }))
-        );
-      }
+
+      const rows = (data as FavoriteRecipeRow[] | null) ?? [];
+      const mapped = rows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          cover_image_url: row.cover_image_url,
+          categories: getRecipeCategories(row.recipe_categories),
+        }));
+
+      const resolved = await Promise.all(
+        mapped.map(async (recipe) => ({
+          ...recipe,
+          cover_image_url: await resolveCoverImageUrl(recipe.cover_image_url),
+        }))
+      );
+
+      setFavorites(resolved);
+
       setLoading(false);
     }
     fetchFavs();
@@ -71,7 +105,12 @@ export default function FavoritesPage() {
         ) : (
           <div className="recipe-grid">
             {favorites.map((recipe) => (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="recipe-card" style={{ textDecoration: "none", flexDirection: "column", alignItems: "stretch" }}>
+              <Link
+                key={recipe.id}
+                href={`/recipes/${recipe.id}`}
+                className="recipe-card recipe-card-vertical"
+                style={{ textDecoration: "none" }}
+              >
                 {recipe.cover_image_url && (
                   <Image
                     src={recipe.cover_image_url}
@@ -82,9 +121,20 @@ export default function FavoritesPage() {
                     unoptimized
                   />
                 )}
-                <div className="recipe-info">
+                <div className="recipe-info recipe-info-card">
                   <span className="recipe-name">{recipe.title}</span>
-                  {recipe.category_name && <span className="recipe-tag">{recipe.category_name}</span>}
+                  {recipe.categories.length > 0 && (
+                    <div className="recipe-card-tags">
+                      {recipe.categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="recipe-category-chip"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}

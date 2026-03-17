@@ -76,5 +76,5 @@ for each row
 execute function public.set_updated_at();
 
 insert into public.categories (name, emoji)
-values ('Desserts', chr(127856))
+values ('Desserts', null)
 on conflict (name) do nothing;

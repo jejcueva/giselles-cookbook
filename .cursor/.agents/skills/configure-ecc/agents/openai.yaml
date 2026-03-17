@@ -1,0 +1,6 @@
+interface:
+  display_name: "Configure ECC"
+  short_description: "Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files."
+  default_prompt: "Use the Configure ECC skill for this task."
+policy:
+  allow_implicit_invocation: true

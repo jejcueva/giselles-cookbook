@@ -1,39 +1,26 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
-import { THEMES, CUSTOM_COLORS, applyTheme, applyCustomColor, type Theme } from "@/lib/themes";
+import { UI_COLORS, applyColor, storeColor, isDarkMode, setDarkMode } from "@/lib/themes";
 import { useState } from "react";
 
 export default function SettingsPage() {
-  const [activeTheme, setActiveTheme] = useState(() => {
-    if (typeof window === "undefined") return "cottagecore";
-    return localStorage.getItem("cookbook-theme") || "cottagecore";
-  });
   const [activeColor, setActiveColor] = useState(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("cookbook-custom-color");
+    if (typeof window === "undefined") return "#f2b8c6";
+    return localStorage.getItem("cookbook-color") || "#f2b8c6";
   });
-
-  function selectTheme(theme: Theme) {
-    localStorage.setItem("cookbook-theme", theme.id);
-    localStorage.removeItem("cookbook-custom-color");
-    setActiveTheme(theme.id);
-    setActiveColor(null);
-    applyTheme(theme);
-    window.location.reload();
-  }
+  const [darkMode, setDarkModeState] = useState(() => isDarkMode());
 
   function selectColor(hex: string) {
-    localStorage.setItem("cookbook-custom-color", hex);
+    storeColor(hex);
     setActiveColor(hex);
-    applyCustomColor(hex);
+    applyColor(hex);
   }
 
-  function clearCustomColor() {
-    localStorage.removeItem("cookbook-custom-color");
-    setActiveColor(null);
-    const theme = THEMES.find((t) => t.id === activeTheme) || THEMES[0];
-    applyTheme(theme);
+  function toggleDarkMode() {
+    const next = !darkMode;
+    setDarkModeState(next);
+    setDarkMode(next);
   }
 
   return (
@@ -42,32 +29,25 @@ export default function SettingsPage() {
         <h1 className="section-title">Settings</h1>
 
         <div className="settings-section">
-          <h2 className="settings-heading">Holiday Themes</h2>
-          <div className="theme-grid">
-            {THEMES.map((theme) => (
-              <button
-                key={theme.id}
-                type="button"
-                className={`theme-card${activeTheme === theme.id && !activeColor ? " theme-card-active" : ""}`}
-                onClick={() => selectTheme(theme)}
-              >
-                <div className="theme-swatches">
-                  <span className="theme-swatch" style={{ background: theme.colors.primary }} />
-                  <span className="theme-swatch" style={{ background: theme.colors.secondary }} />
-                  <span className="theme-swatch" style={{ background: theme.colors.accent }} />
-                  <span className="theme-swatch" style={{ background: theme.colors.background }} />
-                </div>
-                <span className="theme-name">{theme.name}</span>
-              </button>
-            ))}
+          <h2 className="settings-heading">Dark Mode</h2>
+          <div className="dark-mode-toggle-row">
+            <button
+              type="button"
+              className={`dark-mode-toggle${darkMode ? " dark-mode-on" : ""}`}
+              onClick={toggleDarkMode}
+              aria-pressed={darkMode}
+            >
+              <span className="dark-mode-toggle-thumb" />
+            </button>
+            <span className="dark-mode-label">{darkMode ? "On" : "Off"}</span>
           </div>
         </div>
 
         <div className="settings-section">
-          <h2 className="settings-heading">Custom Color</h2>
-          <p className="settings-description">Override just the primary color without changing the full theme.</p>
+          <h2 className="settings-heading">UI Color</h2>
+          <p className="settings-description">Pick an accent color for buttons, links, and highlights.</p>
           <div className="color-picker-row">
-            {CUSTOM_COLORS.map((c) => (
+            {UI_COLORS.map((c) => (
               <button
                 key={c.hex}
                 type="button"
@@ -77,11 +57,6 @@ export default function SettingsPage() {
                 title={c.name}
               />
             ))}
-            {activeColor && (
-              <button type="button" className="btn-secondary" onClick={clearCustomColor}>
-                Reset
-              </button>
-            )}
           </div>
         </div>
       </section>

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Springboot TDD"
+  short_description: "Test-driven development for Spring Boot using JUnit 5, Mockito, MockMvc, Testcontainers, and JaCoCo."
+  default_prompt: "Use the Springboot TDD skill for this task."
+policy:
+  allow_implicit_invocation: true
