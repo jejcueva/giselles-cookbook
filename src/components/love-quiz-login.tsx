@@ -38,13 +38,13 @@ const QUESTIONS: QuizQuestion[] = [
     prompt: "Where did we meet for the first time?",
     answer: "Galaxy Theatre",
     hint: "it is case-sensitive",
-    placeholder: "name of the place",
+    placeholder: "name of the theatre",
   },
   {
     id: "first-meet-day",
     prompt: "What day did we first meet?",
     answer: "09/15/2025",
-    hint: "",
+    hint: "c",
     placeholder: "MM/DD/YYYY",
   },
   {
@@ -57,17 +57,19 @@ const QUESTIONS: QuizQuestion[] = [
   {
     id: "like-you",
     prompt: "How much do I like you?",
-    answer: "I LOVE YOU",
-    hint: "I L--E YOU",
-    placeholder: "how much?",
+    answer: "I WOOF YOU",
+    hint: "WOOF WOOF",
+    placeholder: "how much? I ---- YOU",
   },
 ];
 
 const WRONG_CREDENTIALS_MESSAGE = "Wrong username or password.";
-const WRONG_QUIZ_MESSAGE = "That's not quite right, cutie. Try again.";
+const WRONG_QUIZ_MESSAGE = "nah dumbahh try again lol";
 
 const PARTICLE_ANGLES = [0, 40, 80, 120, 160, 200, 240, 280, 320];
 const PARTICLE_DISTANCE = 120;
+
+const DISABLE_BIRTHDAY_SEEN_FLAG = true;
 
 function birthdaySeenKey(user: string) {
   return `has_seen_birthday_${user}`;
@@ -79,6 +81,12 @@ function quizCompletedKey(user: string) {
 
 function normalize(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function normalizePassword(user: Account, rawPassword: string): string {
+  if (user === "test") return rawPassword.trim();
+  // Accept both "01092026" and "01/09/2026" style inputs.
+  return rawPassword.replace(/\D/g, "");
 }
 
 function HeartSplash() {
@@ -147,21 +155,26 @@ export function LoveQuizLogin() {
     event.preventDefault();
 
     const normalized = username.trim().toLowerCase() as Account;
-    if (CREDENTIALS[normalized] !== password) {
+    const expected = CREDENTIALS[normalized];
+    const normalizedInputPassword = normalizePassword(normalized, password);
+    const normalizedExpectedPassword = normalizePassword(normalized, expected);
+    if (normalizedExpectedPassword !== normalizedInputPassword) {
       triggerError(WRONG_CREDENTIALS_MESSAGE);
       return;
     }
 
     if (rememberMe) {
       localStorage.setItem(REMEMBER_USERNAME_KEY, normalized);
-      localStorage.setItem(REMEMBER_PASSWORD_KEY, password);
+      localStorage.setItem(REMEMBER_PASSWORD_KEY, normalizedInputPassword);
     } else {
       localStorage.removeItem(REMEMBER_USERNAME_KEY);
       localStorage.removeItem(REMEMBER_PASSWORD_KEY);
     }
 
     const hasCompletedQuiz = localStorage.getItem(quizCompletedKey(normalized)) === "true";
-    const hasSeenBirthday = localStorage.getItem(birthdaySeenKey(normalized)) === "true";
+    const hasSeenBirthday = DISABLE_BIRTHDAY_SEEN_FLAG
+      ? false
+      : localStorage.getItem(birthdaySeenKey(normalized)) === "true";
 
     if (hasCompletedQuiz) {
       localStorage.setItem(SESSION_KEY, "true");

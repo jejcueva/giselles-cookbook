@@ -51,7 +51,9 @@ export function BirthdaySceneTwo({ onComplete }: BirthdaySceneTwoProps) {
       className={`birthday-screen ${fadingOut ? "birthday-screen-fade-out" : ""}`}
       onClick={handleClick}
     >
-      <h1 className="birthday-title">happy birthday baby, i love you so much</h1>
+      <div className={`birthday-screen-content ${fadingOut ? "birthday-screen-content-fade-out" : ""}`}>
+        <h1 className="birthday-title">HAPPY BIRTHDAY BABYYY, I MISS YOU I WOOF YOU</h1>
+      </div>
     </main>
   );
 }

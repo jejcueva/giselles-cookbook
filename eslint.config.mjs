@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agent/tooling artifacts (not part of app source):
+    ".claude/worktrees/**",
+    ".claude/agents/**",
+    ".cursor/**",
   ]),
 ]);
 
