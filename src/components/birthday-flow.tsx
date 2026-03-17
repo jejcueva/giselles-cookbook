@@ -9,6 +9,10 @@ const SESSION_KEY = "cute-cookbook-authenticated";
 const USERNAME_KEY = "cute-cookbook-username";
 const BIRTHDAY_ENTRY_KEY = "cute-cookbook-birthday-entry";
 
+function birthdaySeenKey(user: string) {
+  return `has_seen_birthday_${user}`;
+}
+
 export function BirthdayFlow() {
   const router = useRouter();
   const [scene, setScene] = useState(1);
@@ -45,6 +49,11 @@ export function BirthdayFlow() {
   const handleSceneTwoComplete = () => setScene(3);
 
   const handleLoveLetterComplete = () => {
+    const user =
+      typeof window !== "undefined"
+        ? localStorage.getItem(USERNAME_KEY) || "gisellemyluv"
+        : "gisellemyluv";
+    localStorage.setItem(birthdaySeenKey(user), "true");
     localStorage.removeItem(BIRTHDAY_ENTRY_KEY);
     router.push("/");
   };

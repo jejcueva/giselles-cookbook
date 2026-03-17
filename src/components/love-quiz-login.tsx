@@ -69,8 +69,6 @@ const WRONG_QUIZ_MESSAGE = "nah dumbahh try again lol";
 const PARTICLE_ANGLES = [0, 40, 80, 120, 160, 200, 240, 280, 320];
 const PARTICLE_DISTANCE = 120;
 
-const DISABLE_BIRTHDAY_SEEN_FLAG = true;
-
 function birthdaySeenKey(user: string) {
   return `has_seen_birthday_${user}`;
 }
@@ -172,9 +170,7 @@ export function LoveQuizLogin() {
     }
 
     const hasCompletedQuiz = localStorage.getItem(quizCompletedKey(normalized)) === "true";
-    const hasSeenBirthday = DISABLE_BIRTHDAY_SEEN_FLAG
-      ? false
-      : localStorage.getItem(birthdaySeenKey(normalized)) === "true";
+    const hasSeenBirthday = localStorage.getItem(birthdaySeenKey(normalized)) === "true";
 
     if (hasCompletedQuiz) {
       localStorage.setItem(SESSION_KEY, "true");
