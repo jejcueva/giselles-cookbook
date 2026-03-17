@@ -1529,6 +1529,51 @@ p {
   gap: 0.5rem;
 }
 
+.ingredient-amount,
+.ingredient-unit {
+  flex: 0 0 84px;
+}
+
+.ingredient-name {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.instruction-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ingredient-row .form-input,
+.instruction-row .form-textarea {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .ingredient-row,
+  .instruction-row {
+    flex-wrap: wrap;
+  }
+
+  .ingredient-amount,
+  .ingredient-unit {
+    flex: 1 1 7rem;
+  }
+
+  .ingredient-name {
+    flex: 1 1 100%;
+  }
+
+  .instruction-text {
+    flex: 1 1 100%;
+  }
+
+  .ingredient-row .btn-icon-remove,
+  .instruction-row .btn-icon-remove {
+    margin-left: auto;
+  }
+}
+
 .btn-icon-remove {
   background: none;
   border: 1px solid var(--color-border-soft);

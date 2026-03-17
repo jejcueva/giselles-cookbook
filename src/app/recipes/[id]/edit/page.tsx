@@ -208,9 +208,27 @@ export default function EditRecipePage() {
             <legend className="form-legend">Ingredients</legend>
             {ingredients.map((ing, i) => (
               <div key={i} className="ingredient-row">
-                <input type="text" className="form-input" placeholder="Amount" value={ing.amount} onChange={(e) => updateIngredient(i, "amount", e.target.value)} style={{ flex: "0 0 80px" }} />
-                <input type="text" className="form-input" placeholder="Unit" value={ing.unit} onChange={(e) => updateIngredient(i, "unit", e.target.value)} style={{ flex: "0 0 80px" }} />
-                <input type="text" className="form-input" placeholder="Ingredient name" value={ing.name} onChange={(e) => updateIngredient(i, "name", e.target.value)} style={{ flex: 1 }} />
+                <input
+                  type="text"
+                  className="form-input ingredient-amount"
+                  placeholder="Amount"
+                  value={ing.amount}
+                  onChange={(e) => updateIngredient(i, "amount", e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-input ingredient-unit"
+                  placeholder="Unit"
+                  value={ing.unit}
+                  onChange={(e) => updateIngredient(i, "unit", e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-input ingredient-name"
+                  placeholder="Ingredient name"
+                  value={ing.name}
+                  onChange={(e) => updateIngredient(i, "name", e.target.value)}
+                />
                 {ingredients.length > 1 && (
                   <button
                     type="button"
@@ -231,7 +249,12 @@ export default function EditRecipePage() {
             {instructions.map((step, i) => (
               <div key={i} className="instruction-row">
                 <span className="step-number">{i + 1}.</span>
-                <textarea className="form-textarea" value={step} onChange={(e) => updateInstruction(i, e.target.value)} rows={2} style={{ flex: 1 }} />
+                <textarea
+                  className="form-textarea instruction-text"
+                  value={step}
+                  onChange={(e) => updateInstruction(i, e.target.value)}
+                  rows={2}
+                />
                 {instructions.length > 1 && (
                   <button
                     type="button"
