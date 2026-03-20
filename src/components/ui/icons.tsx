@@ -1,4 +1,4 @@
-export type NavIconName = "home" | "book" | "heart" | "chat" | "settings" | "search";
+export type NavIconName = "home" | "book" | "heart" | "chat" | "settings" | "search" | "tag";
 
 export function OutlineIcon({
   name,
@@ -54,6 +54,12 @@ export function OutlineIcon({
         <>
           <circle cx="10.5" cy="10.5" r="5.75" />
           <path d="m15.25 15.25 4 4" />
+        </>
+      )}
+      {name === "tag" && (
+        <>
+          <path d="M20.25 11.25 12.75 3.75H3.75v9l7.5 7.5 9-9Z" />
+          <circle cx="8.25" cy="8.25" r="1.5" />
         </>
       )}
     </svg>
