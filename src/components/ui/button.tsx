@@ -27,7 +27,7 @@ type ButtonAsLink = CommonProps &
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
-function useNativeAnchor(href: string) {
+function isExternalOrSpecialHref(href: string) {
   return /^(https?:|mailto:|tel:)/i.test(href);
 }
 
@@ -37,7 +37,7 @@ export function Button(props: ButtonProps) {
 
   if ("href" in props && props.href !== undefined) {
     const { href, children, ...rest } = props as ButtonAsLink;
-    if (useNativeAnchor(href)) {
+    if (isExternalOrSpecialHref(href)) {
       return (
         <a href={href} className={classes} {...rest}>
           {children}
