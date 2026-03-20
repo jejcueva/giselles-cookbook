@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { Button } from "@/components/ui";
 import { UI_COLORS, applyColor, storeColor, isDarkMode, setDarkMode } from "@/lib/themes";
 import { useState } from "react";
 
@@ -82,9 +83,7 @@ export default function SettingsPage() {
           <p className="settings-description">
             Send any feedback, suggested features, or issues you&apos;re having.
           </p>
-          <a className="btn-primary" href={feedbackHref}>
-            Email feedback
-          </a>
+          <Button href={feedbackHref}>Email feedback</Button>
         </div>
       </section>
     </AppShell>

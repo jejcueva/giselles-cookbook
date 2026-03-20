@@ -6,7 +6,7 @@ type Category = {
   name: string;
 };
 
-type RecipeCardProps = {
+export type RecipeCardProps = {
   id: string;
   title: string;
   coverImageUrl: string | null;

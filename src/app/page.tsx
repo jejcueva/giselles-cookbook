@@ -1,11 +1,11 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
-import { RecipeCard } from "@/components/recipe-card";
+import { RecipeCard } from "@/features/recipes";
 import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 
 type Category = {
@@ -165,6 +165,17 @@ function SkyIcon({ time }: { time: string }) {
   return <Sun />;
 }
 
+/** Narrow hero: five flowers with uneven flex spacers + small translateX for organic spacing */
+const MOBILE_HERO_FLOWERS = [
+  { jitterX: -5, leafCount: 1, petalRx: 3, petalRy: 6, size: 28, stemHeight: 20 },
+  { jitterX: 6, leafCount: 2, petalRx: 3.6, petalRy: 7.2, size: 33, stemHeight: 25 },
+  { jitterX: -3, leafCount: 1, petalRx: 2.8, petalRy: 5.8, size: 26, stemHeight: 19 },
+  { jitterX: 4, leafCount: 2, petalRx: 3.5, petalRy: 7, size: 32, stemHeight: 24 },
+  { jitterX: -6, leafCount: 1, petalRx: 3.1, petalRy: 6.4, size: 30, stemHeight: 21 },
+] as const;
+
+const MOBILE_HERO_GAP_GROW = [0.48, 0.92, 0.34, 0.78] as const;
+
 const RECENTLY_OPENED_KEY = "cute-cookbook-recently-opened-recipes";
 
 export default function Home() {
@@ -304,26 +315,46 @@ export default function Home() {
     <AppShell>
       <section className="hero-panel">
         <div className="hero-inner">
-          {/* left 5 flowers — spread across left half, under text */}
-          <div className="hero-side">
-            <div className="flower-scatter" style={{ top: "52%", left: "2%" }}><Sunflower size={44} stemHeight={42} leafCount={3} petalRx={5} petalRy={11} /></div>
-            <div className="flower-scatter" style={{ top: "62%", left: "14%" }}><Sunflower size={30} stemHeight={30} leafCount={1} petalRx={3.5} petalRy={7} /></div>
-            <div className="flower-scatter" style={{ top: "46%", left: "24%" }}><Sunflower size={52} stemHeight={48} leafCount={2} petalRx={6} petalRy={13} /></div>
-            <div className="flower-scatter" style={{ top: "64%", left: "35%" }}><Sunflower size={26} stemHeight={22} leafCount={1} petalRx={3} petalRy={6} /></div>
-            <div className="flower-scatter" style={{ top: "50%", left: "44%" }}><Sunflower size={34} stemHeight={32} leafCount={2} petalRx={4} petalRy={8} /></div>
+          <div className="hero-flowers-desktop">
+            {/* left 5 flowers — spread across left half, under text (wide layouts) */}
+            <div className="hero-side">
+              <div className="flower-scatter" style={{ left: "2%" }}><Sunflower size={44} stemHeight={42} leafCount={3} petalRx={5} petalRy={11} /></div>
+              <div className="flower-scatter" style={{ left: "14%" }}><Sunflower size={30} stemHeight={30} leafCount={1} petalRx={3.5} petalRy={7} /></div>
+              <div className="flower-scatter" style={{ left: "24%" }}><Sunflower size={52} stemHeight={48} leafCount={2} petalRx={6} petalRy={13} /></div>
+              <div className="flower-scatter" style={{ left: "35%" }}><Sunflower size={26} stemHeight={22} leafCount={1} petalRx={3} petalRy={6} /></div>
+              <div className="flower-scatter" style={{ left: "44%" }}><Sunflower size={34} stemHeight={32} leafCount={2} petalRx={4} petalRy={8} /></div>
+            </div>
+            <div className="hero-side">
+              <div className="flower-scatter" style={{ left: "56%" }}><Sunflower size={48} stemHeight={44} leafCount={3} petalRx={5.5} petalRy={12} /></div>
+              <div className="flower-scatter" style={{ left: "64%" }}><Sunflower size={32} stemHeight={28} leafCount={1} petalRx={3.5} petalRy={7.5} /></div>
+              <div className="flower-scatter" style={{ left: "72%" }}><Sunflower size={40} stemHeight={38} leafCount={2} petalRx={4.5} petalRy={10} /></div>
+              <div className="flower-scatter" style={{ left: "80%" }}><Sunflower size={28} stemHeight={24} leafCount={1} petalRx={3} petalRy={6.5} /></div>
+              <div className="flower-scatter" style={{ left: "87%" }}><Sunflower size={36} stemHeight={34} leafCount={2} petalRx={4} petalRy={9} /></div>
+              <div className="flower-scatter" style={{ left: "93%" }}><Sunflower size={24} stemHeight={20} leafCount={1} petalRx={2.8} petalRy={5.5} /></div>
+            </div>
           </div>
           <div className="hero-center">
             <SkyIcon time={time} />
             <h1 className="hero-title">{getGreeting(time)}</h1>
           </div>
-          {/* right 6 flowers — spread across right half, under text */}
-          <div className="hero-side">
-            <div className="flower-scatter" style={{ top: "48%", left: "56%" }}><Sunflower size={48} stemHeight={44} leafCount={3} petalRx={5.5} petalRy={12} /></div>
-            <div className="flower-scatter" style={{ top: "60%", left: "64%" }}><Sunflower size={32} stemHeight={28} leafCount={1} petalRx={3.5} petalRy={7.5} /></div>
-            <div className="flower-scatter" style={{ top: "44%", left: "72%" }}><Sunflower size={40} stemHeight={38} leafCount={2} petalRx={4.5} petalRy={10} /></div>
-            <div className="flower-scatter" style={{ top: "64%", left: "80%" }}><Sunflower size={28} stemHeight={24} leafCount={1} petalRx={3} petalRy={6.5} /></div>
-            <div className="flower-scatter" style={{ top: "50%", left: "87%" }}><Sunflower size={36} stemHeight={34} leafCount={2} petalRx={4} petalRy={9} /></div>
-            <div className="flower-scatter" style={{ top: "66%", left: "93%" }}><Sunflower size={24} stemHeight={20} leafCount={1} petalRx={2.8} petalRy={5.5} /></div>
+          {/* ≤768px: five flowers, irregular gaps (flex-grow spacers) + slight horizontal jitter */}
+          <div className="hero-flowers-mobile" aria-hidden="true">
+            {MOBILE_HERO_FLOWERS.map((f, i) => (
+              <Fragment key={i}>
+                <span className="hero-flower-jitter" style={{ transform: `translateX(${f.jitterX}px)` }}>
+                  <Sunflower
+                    leafCount={f.leafCount}
+                    petalRx={f.petalRx}
+                    petalRy={f.petalRy}
+                    size={f.size}
+                    stemHeight={f.stemHeight}
+                  />
+                </span>
+                {i < MOBILE_HERO_GAP_GROW.length ? (
+                  <span className="hero-flower-gap" style={{ flex: `${MOBILE_HERO_GAP_GROW[i]} 1 0` }} />
+                ) : null}
+              </Fragment>
+            ))}
           </div>
         </div>
       </section>

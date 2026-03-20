@@ -1,0 +1,43 @@
+/**
+ * Design tokens only — light/dark CSS custom properties.
+ * Runtime accent is still applied via `applyColor()` in src/lib/themes.ts (inline on :root).
+ */
+
+:root {
+  --color-primary: #f2b8c6;
+  --color-primary-deep: #ce9ca8;
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-primary-shadow: 242, 184, 198;
+  --color-on-primary: #3a2a1a;
+  --color-secondary: #a67b5b;
+  --color-accent: #a8bfa0;
+  --color-accent-soft: #c5d9be;
+  --color-background: #fff8f0;
+  --color-text: #4a3728;
+  --color-surface: #fffdfb;
+  --color-surface-warm: #fff9f5;
+  --color-border: #ebd8c8;
+  --color-border-soft: #f0e2d8;
+  --shadow-soft: 0 20px 40px rgba(74, 55, 40, 0.08);
+  --shadow-card: 0 4px 20px rgba(74, 55, 40, 0.06), 0 1px 3px rgba(var(--color-primary-shadow), 0.15);
+  --shadow-card-hover: 0 12px 32px rgba(74, 55, 40, 0.1), 0 2px 8px rgba(var(--color-primary-shadow), 0.2);
+  --transition-snappy: 0.22s ease-out;
+  --transition-smooth: 0.3s ease-out;
+}
+
+[data-theme="dark"] {
+  --color-on-primary: #fff;
+  --color-secondary: #c7b3a2;
+  --color-accent: #87a082;
+  --color-accent-soft: #5e7660;
+  --color-background: #17141b;
+  --color-text: #f1e7de;
+  --color-surface: #221d26;
+  --color-surface-warm: #2b2330;
+  --color-border: #3b3044;
+  --color-border-soft: #342a3d;
+  --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(var(--color-primary-shadow), 0.15);
+}

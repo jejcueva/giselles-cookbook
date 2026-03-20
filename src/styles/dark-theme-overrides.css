@@ -1,0 +1,223 @@
+/**
+ * Dark theme: component-level overrides (not token definitions).
+ * Loaded after tokens.css.
+ */
+
+/* dark mode — main layout surfaces */
+[data-theme="dark"] .main-column {
+  background: var(--color-background) !important;
+}
+
+[data-theme="dark"] .sidebar {
+  background: linear-gradient(180deg, #201a26 0%, #1a1521 100%);
+}
+
+[data-theme="dark"] .topbar {
+  background: rgba(28, 23, 33, 0.96) !important;
+  border-color: var(--color-border);
+}
+
+/* dark mode — mobile bottom bar + tabs */
+[data-theme="dark"] .mobile-tab-bar {
+  background: linear-gradient(180deg, rgba(25, 25, 40, 0.98) 0%, rgba(20, 20, 32, 0.99) 100%) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .mobile-tab {
+  color: #c4bab0 !important;
+  opacity: 0.85;
+}
+
+[data-theme="dark"] .mobile-tab.active {
+  background: rgba(var(--color-primary-shadow), 0.15);
+  color: var(--color-primary) !important;
+  opacity: 1;
+}
+
+/* dark mode — cards and surfaces */
+[data-theme="dark"] .recipe-card,
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .nutrition-card,
+[data-theme="dark"] .love-letter,
+[data-theme="dark"] .ui-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="dark"] .recipe-category-chip {
+  background: var(--color-surface-warm) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .empty-state {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border);
+}
+
+/* dark mode — forms and inputs */
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea,
+[data-theme="dark"] .quiz-question input,
+[data-theme="dark"] .topbar input,
+[data-theme="dark"] .quiz-single-input,
+[data-theme="dark"] .chat-input {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+/* dark mode — buttons */
+[data-theme="dark"] .btn-secondary {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: var(--color-surface-warm) !important;
+}
+
+/* Use theme accent vars so Settings → UI Color applies in dark mode */
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .topbar button:not(.mobile-search-trigger) {
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-deep) 100%) !important;
+  border: 1px solid var(--color-primary-deep);
+  box-shadow: 0 2px 10px rgba(var(--color-primary-shadow), 0.32), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  color: var(--color-on-primary);
+}
+
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .topbar button:not(.mobile-search-trigger):hover {
+  box-shadow: 0 5px 16px rgba(var(--color-primary-shadow), 0.42), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .topbar .mobile-search-trigger {
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%) !important;
+  border: 1px solid var(--color-border-soft) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .logout-button {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--color-border) !important;
+  color: #d8c8bc;
+}
+
+[data-theme="dark"] .logout-button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: #7d678a !important;
+  color: #f3e8df;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #cdbcb1;
+}
+
+[data-theme="dark"] .nav-link:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3e8df;
+}
+
+[data-theme="dark"] .nav-link.active {
+  background: rgba(var(--color-primary-shadow), 0.18);
+  color: #ffe5ee;
+}
+
+/* dark mode — fieldsets and form groups */
+[data-theme="dark"] .form-fieldset {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* dark mode — tags and filter chips */
+[data-theme="dark"] .tag-filter-chip {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .tag-filter-chip:hover {
+  background: var(--color-surface-warm);
+}
+
+[data-theme="dark"] .tag-filter-chip.active {
+  color: var(--color-on-primary);
+}
+
+/* dark mode — chat */
+[data-theme="dark"] .chat-bubble-assistant {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* dark mode — error text */
+[data-theme="dark"] .error-text {
+  background: #2a1a1a !important;
+  border-color: #6b3030 !important;
+  color: #f08080 !important;
+}
+
+/* dark mode — loading and overlays */
+[data-theme="dark"] .loading-state {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .mobile-search-overlay {
+  background: rgba(10, 10, 18, 0.9);
+}
+
+/* dark mode — settings */
+[data-theme="dark"] .theme-card,
+[data-theme="dark"] .color-swatch-btn {
+  border-color: var(--color-border);
+}
+
+/* dark mode — misc hardcoded surfaces */
+[data-theme="dark"] .settings-page,
+[data-theme="dark"] .dashboard-section,
+[data-theme="dark"] .content {
+  color: var(--color-text);
+}
+
+/* login and birthday always stay light/pink regardless of dark mode */
+[data-theme="dark"] .auth-screen {
+  background: #f2b8c6;
+  color: #4a3728;
+}
+
+[data-theme="dark"] .auth-screen .auth-card,
+[data-theme="dark"] .auth-screen .quiz-card {
+  background: #fffdfb !important;
+  border-color: #ebd8c8 !important;
+  color: #4a3728 !important;
+}
+
+[data-theme="dark"] .auth-screen input {
+  background: #fff !important;
+  border-color: #ebd8c8 !important;
+  color: #4a3728 !important;
+}
+
+[data-theme="dark"] .birthday-scene {
+  background: #f2b8c6 !important;
+  color: #4a3728 !important;
+}
+
+[data-theme="dark"] .birthday-screen,
+[data-theme="dark"] .love-letter-screen {
+  background: #f2b8c6 !important;
+  color: #4a3728 !important;
+}
+
+/* Keep the letter "paper" light even in dark mode */
+[data-theme="dark"] .love-letter {
+  background: linear-gradient(168deg, #fffaf3, #fff5eb, #fef9f4) !important;
+  border-color: #e2cdb8 !important;
+  color: #5a4133 !important;
+}

@@ -154,22 +154,6 @@ function NewRecipeContent() {
     setCoverPreview(URL.createObjectURL(file));
   }
 
-  // Tags
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
-
-  function addTag() {
-    const trimmed = tagInput.trim().toLowerCase();
-    if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed]);
-    }
-    setTagInput("");
-  }
-
-  function removeTag(tag: string) {
-    setTags(tags.filter((t) => t !== tag));
-  }
-
   // Import handler
   async function handleImport() {
     if (!importUrl.trim()) return;
@@ -267,12 +251,6 @@ function NewRecipeContent() {
           recipe_id: recipe.id,
           category_id: selectedCategoryId,
         });
-      }
-
-      if (tags.length > 0) {
-        await supabase.from("recipe_tags").insert(
-          tags.map((tag) => ({ recipe_id: recipe.id, tag }))
-        );
       }
 
       router.push(`/recipes/${recipe.id}`);
@@ -524,39 +502,6 @@ function NewRecipeContent() {
                 <button type="button" className="btn-primary" onClick={createCategory} style={{ padding: "0.5rem 1rem" }}>
                   Add
                 </button>
-              </div>
-            )}
-          </div>
-
-          <div className="form-label">
-            Tags
-            <div className="tag-input-row">
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Add a tag and press Enter"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                style={{ flex: 1 }}
-              />
-              <button type="button" className="btn-secondary" onClick={addTag} style={{ padding: "0.5rem 1rem" }}>
-                Add
-              </button>
-            </div>
-            {tags.length > 0 && (
-              <div className="tag-list">
-                {tags.map((tag) => (
-                  <span key={tag} className="tag-chip">
-                    {tag}
-                    <button type="button" className="tag-remove" onClick={() => removeTag(tag)}>×</button>
-                  </span>
-                ))}
               </div>
             )}
           </div>
