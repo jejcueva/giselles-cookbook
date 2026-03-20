@@ -1,16 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import {
+  clearOnboardingFlags,
+  hasCompletedQuiz,
+  hasSeenBirthday,
+  markQuizCompleted,
+  normalizeAccountUsername,
+} from "@/lib/onboarding-state";
 
-const SESSION_KEY = "cute-cookbook-authenticated";
 const USERNAME_KEY = "cute-cookbook-username";
 const BIRTHDAY_ENTRY_KEY = "cute-cookbook-birthday-entry";
 const REMEMBER_USERNAME_KEY = "cute-cookbook-remember-username";
-const REMEMBER_PASSWORD_KEY = "cute-cookbook-remember-password";
-
-type Account = "gisellemyluv" | "test";
 
 type QuizQuestion = {
   id: string;
@@ -20,10 +23,7 @@ type QuizQuestion = {
   placeholder: string;
 };
 
-const CREDENTIALS: Record<Account, string> = {
-  gisellemyluv: "01092026",
-  test: "test",
-};
+type Account = "gisellemyluv" | "test";
 
 const QUESTIONS: QuizQuestion[] = [
   {
@@ -69,22 +69,8 @@ const WRONG_QUIZ_MESSAGE = "nah dumbahh try again lol";
 const PARTICLE_ANGLES = [0, 40, 80, 120, 160, 200, 240, 280, 320];
 const PARTICLE_DISTANCE = 120;
 
-function birthdaySeenKey(user: string) {
-  return `has_seen_birthday_${user}`;
-}
-
-function quizCompletedKey(user: string) {
-  return `has_completed_quiz_${user}`;
-}
-
 function normalize(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function normalizePassword(user: Account, rawPassword: string): string {
-  if (user === "test") return rawPassword.trim();
-  // Accept both "01092026" and "01/09/2026" style inputs.
-  return rawPassword.replace(/\D/g, "");
 }
 
 function HeartSplash() {
@@ -123,15 +109,13 @@ export function LoveQuizLogin() {
     if (typeof window === "undefined") return "";
     return localStorage.getItem(REMEMBER_USERNAME_KEY) || "";
   });
-  const [password, setPassword] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem(REMEMBER_PASSWORD_KEY) || "";
-  });
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(() => {
     if (typeof window === "undefined") return false;
     return !!localStorage.getItem(REMEMBER_USERNAME_KEY);
   });
   const [pendingUser, setPendingUser] = useState<Account | null>(null);
+  const [pendingPassword, setPendingPassword] = useState("");
   const [pendingHasSeenBirthday, setPendingHasSeenBirthday] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [value, setValue] = useState("");
@@ -142,6 +126,11 @@ export function LoveQuizLogin() {
 
   const question = QUESTIONS[currentIndex];
 
+  useEffect(() => {
+    // One-time cleanup from older builds that persisted password.
+    localStorage.removeItem("cute-cookbook-remember-password");
+  }, []);
+
   function triggerError(message: string) {
     if (timerRef.current) clearTimeout(timerRef.current);
     setError(message);
@@ -149,50 +138,76 @@ export function LoveQuizLogin() {
     timerRef.current = setTimeout(() => setErrorShaking(false), 550);
   }
 
+  async function establishSession(user: Account, rawPassword: string) {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: user, password: rawPassword }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to create session");
+    }
+  }
+
+  async function verifyCredentials(user: Account, rawPassword: string) {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: user, password: rawPassword, mode: "verify" }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Invalid credentials");
+    }
+  }
+
   function handleCredentialsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const normalized = username.trim().toLowerCase() as Account;
-    const expected = CREDENTIALS[normalized];
-    const normalizedInputPassword = normalizePassword(normalized, password);
-    const normalizedExpectedPassword = normalizePassword(normalized, expected);
-    if (normalizedExpectedPassword !== normalizedInputPassword) {
-      triggerError(WRONG_CREDENTIALS_MESSAGE);
-      return;
-    }
+    const normalized = normalizeAccountUsername(username) as Account;
+    verifyCredentials(normalized, password)
+      .then(() => {
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_USERNAME_KEY, normalized);
+        } else {
+          localStorage.removeItem(REMEMBER_USERNAME_KEY);
+        }
 
-    if (rememberMe) {
-      localStorage.setItem(REMEMBER_USERNAME_KEY, normalized);
-      localStorage.setItem(REMEMBER_PASSWORD_KEY, normalizedInputPassword);
-    } else {
-      localStorage.removeItem(REMEMBER_USERNAME_KEY);
-      localStorage.removeItem(REMEMBER_PASSWORD_KEY);
-    }
+        const userHasCompletedQuiz = hasCompletedQuiz(localStorage, normalized);
+        const userHasSeenBirthday = hasSeenBirthday(localStorage, normalized);
 
-    const hasCompletedQuiz = localStorage.getItem(quizCompletedKey(normalized)) === "true";
-    const hasSeenBirthday = localStorage.getItem(birthdaySeenKey(normalized)) === "true";
+        if (userHasCompletedQuiz) {
+          establishSession(normalized, password)
+            .then(() => {
+              localStorage.setItem(USERNAME_KEY, normalized);
+              const shouldShowBirthday = normalized === "test" || !userHasSeenBirthday;
+              if (shouldShowBirthday) {
+                localStorage.setItem(BIRTHDAY_ENTRY_KEY, "true");
+                router.push("/birthday");
+              } else {
+                router.push("/");
+              }
+            })
+            .catch(() => {
+              triggerError(WRONG_CREDENTIALS_MESSAGE);
+            });
+          return;
+        }
 
-    if (hasCompletedQuiz) {
-      localStorage.setItem(SESSION_KEY, "true");
-      localStorage.setItem(USERNAME_KEY, normalized);
-      const shouldShowBirthday = normalized === "test" || !hasSeenBirthday;
-      if (shouldShowBirthday) {
-        localStorage.setItem(BIRTHDAY_ENTRY_KEY, "true");
-        router.push("/birthday");
-      } else {
-        router.push("/");
-      }
-      return;
-    }
-
-    setPendingHasSeenBirthday(hasSeenBirthday);
-    setPendingUser(normalized);
-    setCurrentIndex(0);
-    setValue("");
-    setAttempts(0);
-    setError("");
-    setErrorShaking(false);
-    setStep("quiz");
+        setPendingPassword(password);
+        setPendingHasSeenBirthday(userHasSeenBirthday);
+        setPendingUser(normalized);
+        setCurrentIndex(0);
+        setValue("");
+        setAttempts(0);
+        setError("");
+        setErrorShaking(false);
+        setStep("quiz");
+      })
+      .catch(() => {
+        triggerError(WRONG_CREDENTIALS_MESSAGE);
+      });
   }
 
   function expectedAnswerForCurrentQuestion() {
@@ -200,20 +215,32 @@ export function LoveQuizLogin() {
     return question.answer;
   }
 
-  function finishQuiz() {
+  async function finishQuiz() {
     if (!pendingUser) {
       router.replace("/login");
       return;
     }
 
-    localStorage.setItem(SESSION_KEY, "true");
+    if (!pendingPassword) {
+      triggerError(WRONG_CREDENTIALS_MESSAGE);
+      setStep("credentials");
+      return;
+    }
+
+    try {
+      await establishSession(pendingUser, pendingPassword);
+    } catch {
+      triggerError(WRONG_CREDENTIALS_MESSAGE);
+      setStep("credentials");
+      return;
+    }
+
     localStorage.setItem(USERNAME_KEY, pendingUser);
-    localStorage.setItem(quizCompletedKey(pendingUser), "true");
+    markQuizCompleted(localStorage, pendingUser);
 
     // Keep the test account reusable for birthday-flow QA.
     if (pendingUser === "test") {
-      localStorage.removeItem(birthdaySeenKey(pendingUser));
-      localStorage.removeItem(quizCompletedKey(pendingUser));
+      clearOnboardingFlags(localStorage, pendingUser);
     }
 
     const shouldShowBirthday = pendingUser === "test" || !pendingHasSeenBirthday;

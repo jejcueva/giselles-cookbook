@@ -1,7 +1,7 @@
 "use client";
 
 import { NewRecipeModal } from "@/components/new-recipe-modal";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -9,8 +9,6 @@ import { supabase } from "@/lib/supabase";
 type AppShellProps = {
   children: React.ReactNode;
 };
-
-const SESSION_KEY = "cute-cookbook-authenticated";
 
 type SearchResult = {
   id: string;
@@ -35,15 +33,15 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Dashboard" },
-  { href: "/recipes", label: "Recipes" },
-  { href: "/categories", label: "Categories" },
-  { href: "/favorites", label: "Favorites" },
+  { href: "/", label: "Dashboard", icon: "home" },
+  { href: "/recipes", label: "Recipes", icon: "book" },
+  { href: "/categories", label: "Categories", icon: "settings" },
+  { href: "/favorites", label: "Favorites", icon: "heart" },
 ];
 
 const UTILITY_ITEMS: NavItem[] = [
-  { href: "/ai-assistant", label: "AI Assistant" },
-  { href: "/settings", label: "Settings" },
+  { href: "/ai-assistant", label: "AI Assistant", icon: "chat" },
+  { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
 const MOBILE_TAB_ITEMS: NavItem[] = [
@@ -132,12 +130,6 @@ export function AppShell({ children }: AppShellProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [newRecipeModalOpen, setNewRecipeModalOpen] = useState(false);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
-  const isClient = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
-  const isAuthenticated = isClient && localStorage.getItem(SESSION_KEY) === "true";
 
   useEffect(() => {
     if (searchQuery.length < 2) {
@@ -169,12 +161,6 @@ export function AppShell({ children }: AppShellProps) {
       clearTimeout(timeout);
     };
   }, [searchQuery]);
-
-  useEffect(() => {
-    if (isClient && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [isAuthenticated, isClient, router]);
 
   useEffect(() => {
     if (!mobileSearchOpen) {
@@ -209,14 +195,6 @@ export function AppShell({ children }: AppShellProps) {
     setSearchOpen(false);
   }
 
-  if (!isClient || !isAuthenticated) {
-    return (
-      <div className="loading-state">
-        <p>Checking session...</p>
-      </div>
-    );
-  }
-
   return (
     <div className={`app-shell${collapsed ? " sidebar-collapsed" : ""}`}>
       <aside className="sidebar">
@@ -249,7 +227,13 @@ export function AppShell({ children }: AppShellProps) {
                   className={isActive ? "nav-link active" : "nav-link"}
                   title={collapsed ? item.label : undefined}
                 >
-                  {!collapsed && item.label}
+                  {collapsed && item.icon ? (
+                    <span className="mobile-tab-icon" aria-hidden="true">
+                      <OutlineIcon name={item.icon} className="app-shell-icon" />
+                    </span>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               );
             })}
@@ -266,7 +250,13 @@ export function AppShell({ children }: AppShellProps) {
                   className={isActive ? "nav-link active" : "nav-link"}
                   title={collapsed ? item.label : undefined}
                 >
-                  {!collapsed && item.label}
+                  {collapsed && item.icon ? (
+                    <span className="mobile-tab-icon" aria-hidden="true">
+                      <OutlineIcon name={item.icon} className="app-shell-icon" />
+                    </span>
+                  ) : (
+                    item.label
+                  )}
                 </Link>
               );
             })}
@@ -276,8 +266,16 @@ export function AppShell({ children }: AppShellProps) {
         <button
           type="button"
           className="logout-button"
-          onClick={() => {
-            localStorage.removeItem(SESSION_KEY);
+          onClick={async () => {
+            const response = await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+            if (!response.ok) {
+              return;
+            }
+            localStorage.removeItem("cute-cookbook-username");
+            localStorage.removeItem("cute-cookbook-birthday-entry");
             router.push("/login");
           }}
         >

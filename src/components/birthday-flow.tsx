@@ -4,14 +4,10 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { BirthdaySceneTwo } from "@/components/birthday-scene-two";
 import { BirthdayLoveLetter } from "@/components/birthday-love-letter";
+import { markBirthdaySeen } from "@/lib/onboarding-state";
 
-const SESSION_KEY = "cute-cookbook-authenticated";
 const USERNAME_KEY = "cute-cookbook-username";
 const BIRTHDAY_ENTRY_KEY = "cute-cookbook-birthday-entry";
-
-function birthdaySeenKey(user: string) {
-  return `has_seen_birthday_${user}`;
-}
 
 export function BirthdayFlow() {
   const router = useRouter();
@@ -21,12 +17,10 @@ export function BirthdayFlow() {
     () => true,
     () => false
   );
-  const isAuthenticated =
-    isClient && localStorage.getItem(SESSION_KEY) === "true";
   const user = isClient ? localStorage.getItem(USERNAME_KEY) : null;
   const cameFromQuiz =
     isClient && localStorage.getItem(BIRTHDAY_ENTRY_KEY) === "true";
-  const canShowBirthdayFlow = isAuthenticated && !!user && cameFromQuiz;
+  const canShowBirthdayFlow = !!user && cameFromQuiz;
 
   useEffect(() => {
     if (isClient && !canShowBirthdayFlow) {
@@ -53,7 +47,7 @@ export function BirthdayFlow() {
       typeof window !== "undefined"
         ? localStorage.getItem(USERNAME_KEY) || "gisellemyluv"
         : "gisellemyluv";
-    localStorage.setItem(birthdaySeenKey(user), "true");
+    markBirthdaySeen(localStorage, user);
     localStorage.removeItem(BIRTHDAY_ENTRY_KEY);
     router.push("/");
   };
