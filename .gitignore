@@ -43,8 +43,14 @@ next-env.d.ts
 # IDE
 .idea/
 
-# Claude Code
+# AI tool configs
 .claude/
+.cursor/
+.agents/
+.codex/
+agents/
+CLAUDE.md
+AGENTS.md
 
 .vercel
 .env*.local

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Autonomous Loops"
-  short_description: "\"Patterns and architectures for autonomous Claude Code loops — from simple sequential pipelines to RFC-driven multi-agent DAG systems.\""
-  default_prompt: "Use the Autonomous Loops skill for this task."
-policy:
-  allow_implicit_invocation: true

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Foundation Models ON Device"
-  short_description: "Apple FoundationModels framework for on-device LLM — text generation, guided generation with @Generable, tool calling, and snapshot streaming in iOS 26+."
-  default_prompt: "Use the Foundation Models ON Device skill for this task."
-policy:
-  allow_implicit_invocation: true

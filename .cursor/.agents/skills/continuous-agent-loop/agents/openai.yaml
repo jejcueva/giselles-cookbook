@@ -1,6 +1,0 @@
-interface:
-  display_name: "Continuous Agent Loop"
-  short_description: "Patterns for continuous autonomous agent loops with quality gates, evals, and recovery controls."
-  default_prompt: "Use the Continuous Agent Loop skill for this task."
-policy:
-  allow_implicit_invocation: true

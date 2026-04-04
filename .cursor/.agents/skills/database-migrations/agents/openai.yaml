@@ -1,6 +1,0 @@
-interface:
-  display_name: "Database Migrations"
-  short_description: "Database migration best practices for schema changes, data migrations, rollbacks, and zero-downtime deployments across PostgreSQL, MySQL, and common ORMs (Prisma, Drizzle, Django, TypeORM, golang-migrate)."
-  default_prompt: "Use the Database Migrations skill for this task."
-policy:
-  allow_implicit_invocation: true

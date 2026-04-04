@@ -1,6 +1,0 @@
-interface:
-  display_name: "Skill Stocktake"
-  short_description: "\"Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation.\""
-  default_prompt: "Use the Skill Stocktake skill for this task."
-policy:
-  allow_implicit_invocation: true

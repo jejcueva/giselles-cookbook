@@ -1,6 +1,0 @@
-interface:
-  display_name: "Rust Patterns"
-  short_description: "Idiomatic Rust patterns, ownership, error handling, traits, concurrency, and best practices for building safe, performant applications."
-  default_prompt: "Use the Rust Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

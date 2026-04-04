@@ -1,6 +1,0 @@
-interface:
-  display_name: "Springboot Patterns"
-  short_description: "Spring Boot architecture patterns, REST API design, layered services, data access, caching, async processing, and logging. Use for Java Spring Boot backend work."
-  default_prompt: "Use the Springboot Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

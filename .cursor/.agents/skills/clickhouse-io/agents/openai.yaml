@@ -1,6 +1,0 @@
-interface:
-  display_name: "Clickhouse IO"
-  short_description: "ClickHouse database patterns, query optimization, analytics, and data engineering best practices for high-performance analytical workloads."
-  default_prompt: "Use the Clickhouse IO skill for this task."
-policy:
-  allow_implicit_invocation: true

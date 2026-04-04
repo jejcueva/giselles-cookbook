@@ -1,6 +1,0 @@
-interface:
-  display_name: "Regex VS LLM Structured Text"
-  short_description: "Decision framework for choosing between regex and LLM when parsing structured text — start with regex, add LLM only for low-confidence edge cases."
-  default_prompt: "Use the Regex VS LLM Structured Text skill for this task."
-policy:
-  allow_implicit_invocation: true

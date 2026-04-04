@@ -1,6 +1,0 @@
-interface:
-  display_name: "Continuous Learning"
-  short_description: "Automatically extract reusable patterns from Claude Code sessions and save them as learned skills for future use."
-  default_prompt: "Use the Continuous Learning skill for this task."
-policy:
-  allow_implicit_invocation: true

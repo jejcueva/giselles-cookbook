@@ -1,6 +1,0 @@
-interface:
-  display_name: "Plankton Code Quality"
-  short_description: "\"Write-time code quality enforcement using Plankton — auto-formatting, linting, and Claude-powered fixes on every file edit via hooks.\""
-  default_prompt: "Use the Plankton Code Quality skill for this task."
-policy:
-  allow_implicit_invocation: true

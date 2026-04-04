@@ -1,6 +1,0 @@
-interface:
-  display_name: "CPP Coding Standards"
-  short_description: "C++ coding standards based on the C++ Core Guidelines (isocpp.github.io)."
-  default_prompt: "Use the CPP Coding Standards skill for this task."
-policy:
-  allow_implicit_invocation: true

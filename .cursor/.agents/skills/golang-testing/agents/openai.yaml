@@ -1,6 +1,0 @@
-interface:
-  display_name: "Golang Testing"
-  short_description: "Go testing patterns including table-driven tests, subtests, benchmarks, fuzzing, and test coverage. Follows TDD methodology with idiomatic Go practices."
-  default_prompt: "Use the Golang Testing skill for this task."
-policy:
-  allow_implicit_invocation: true

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Search First"
-  short_description: "Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent."
-  default_prompt: "Use the Search First skill for this task."
-policy:
-  allow_implicit_invocation: true

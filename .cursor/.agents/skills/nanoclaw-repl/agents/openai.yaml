@@ -1,6 +1,0 @@
-interface:
-  display_name: "Nanoclaw Repl"
-  short_description: "Operate and extend NanoClaw v2, ECC's zero-dependency session-aware REPL built on claude -p."
-  default_prompt: "Use the Nanoclaw Repl skill for this task."
-policy:
-  allow_implicit_invocation: true

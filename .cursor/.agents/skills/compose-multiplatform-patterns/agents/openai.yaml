@@ -1,6 +1,0 @@
-interface:
-  display_name: "Compose Multiplatform Patterns"
-  short_description: "Compose Multiplatform and Jetpack Compose patterns for KMP projects — state management, navigation, theming, performance, and platform-specific UI."
-  default_prompt: "Use the Compose Multiplatform Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

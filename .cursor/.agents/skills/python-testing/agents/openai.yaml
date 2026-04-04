@@ -1,6 +1,0 @@
-interface:
-  display_name: "Python Testing"
-  short_description: "Python testing strategies using pytest, TDD methodology, fixtures, mocking, parametrization, and coverage requirements."
-  default_prompt: "Use the Python Testing skill for this task."
-policy:
-  allow_implicit_invocation: true

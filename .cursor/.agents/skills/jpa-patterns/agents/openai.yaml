@@ -1,6 +1,0 @@
-interface:
-  display_name: "JPA Patterns"
-  short_description: "JPA/Hibernate patterns for entity design, relationships, query optimization, transactions, auditing, indexing, pagination, and pooling in Spring Boot."
-  default_prompt: "Use the JPA Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

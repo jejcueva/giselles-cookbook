@@ -1,6 +1,0 @@
-interface:
-  display_name: "Laravel TDD"
-  short_description: "Test-driven development for Laravel with PHPUnit and Pest, factories, database testing, fakes, and coverage targets."
-  default_prompt: "Use the Laravel TDD skill for this task."
-policy:
-  allow_implicit_invocation: true

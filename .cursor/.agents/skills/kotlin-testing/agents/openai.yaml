@@ -1,6 +1,0 @@
-interface:
-  display_name: "Kotlin Testing"
-  short_description: "Kotlin testing patterns with Kotest, MockK, coroutine testing, property-based testing, and Kover coverage. Follows TDD methodology with idiomatic Kotlin practices."
-  default_prompt: "Use the Kotlin Testing skill for this task."
-policy:
-  allow_implicit_invocation: true

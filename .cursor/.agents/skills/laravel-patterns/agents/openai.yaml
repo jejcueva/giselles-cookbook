@@ -1,6 +1,0 @@
-interface:
-  display_name: "Laravel Patterns"
-  short_description: "Laravel architecture patterns, routing/controllers, Eloquent ORM, service layers, queues, events, caching, and API resources for production apps."
-  default_prompt: "Use the Laravel Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

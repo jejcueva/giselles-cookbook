@@ -1,6 +1,0 @@
-interface:
-  display_name: "Swiftui Patterns"
-  short_description: "SwiftUI architecture patterns, state management with @Observable, view composition, navigation, performance optimization, and modern iOS/macOS UI best practices."
-  default_prompt: "Use the Swiftui Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Kotlin Ktor Patterns"
-  short_description: "Ktor server patterns including routing DSL, plugins, authentication, Koin DI, kotlinx.serialization, WebSockets, and testApplication testing."
-  default_prompt: "Use the Kotlin Ktor Patterns skill for this task."
-policy:
-  allow_implicit_invocation: true
