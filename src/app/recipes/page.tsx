@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { useViewer } from "@/components/viewer-provider";
 import { RecipeCard } from "@/features/recipes";
 import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
@@ -75,6 +76,7 @@ async function withResolvedImages(recipes: Recipe[]): Promise<Recipe[]> {
 }
 
 export default function RecipesPage() {
+  const { canWrite } = useViewer();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryIds, setActiveCategoryIds] = useState<string[]>([]);
@@ -263,16 +265,18 @@ export default function RecipesPage() {
                       </button>
                     );
                   })}
-                  <button
-                    type="button"
-                    className="tag-filter-chip tag-filter-add"
-                    onClick={() => setShowNewTag((v) => !v)}
-                  >
-                    +
-                  </button>
+                  {canWrite ? (
+                    <button
+                      type="button"
+                      className="tag-filter-chip tag-filter-add"
+                      onClick={() => setShowNewTag((v) => !v)}
+                    >
+                      +
+                    </button>
+                  ) : null}
                 </div>
 
-                {showNewTag && (
+                {canWrite && showNewTag && (
                   <div className="filters-new-category-row">
                     <input
                       type="text"

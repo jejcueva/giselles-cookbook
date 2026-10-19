@@ -23,7 +23,7 @@ type QuizQuestion = {
   placeholder: string;
 };
 
-type Account = "gisellemyluv" | "test";
+type Account = "gisellemyluv" | "test" | "recruiter";
 
 const QUESTIONS: QuizQuestion[] = [
   {
@@ -104,6 +104,7 @@ function HeartSplash() {
 export function LoveQuizLogin() {
   const router = useRouter();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
   const [step, setStep] = useState<"credentials" | "quiz">("credentials");
   const [username, setUsername] = useState(() => {
     if (typeof window === "undefined") return "";
@@ -172,6 +173,19 @@ export function LoveQuizLogin() {
           localStorage.setItem(REMEMBER_USERNAME_KEY, normalized);
         } else {
           localStorage.removeItem(REMEMBER_USERNAME_KEY);
+        }
+
+        if (normalized === "recruiter") {
+          establishSession(normalized, password)
+            .then(() => {
+              localStorage.setItem(USERNAME_KEY, normalized);
+              localStorage.removeItem(BIRTHDAY_ENTRY_KEY);
+              router.push("/");
+            })
+            .catch(() => {
+              triggerError(WRONG_CREDENTIALS_MESSAGE);
+            });
+          return;
         }
 
         const userHasCompletedQuiz = hasCompletedQuiz(localStorage, normalized);
@@ -312,6 +326,7 @@ export function LoveQuizLogin() {
               />
 
               <input
+                ref={passwordRef}
                 type="password"
                 className="quiz-single-input"
                 placeholder="password"
@@ -335,6 +350,20 @@ export function LoveQuizLogin() {
 
               <button type="submit">Check</button>
             </form>
+            <button
+              type="button"
+              className="recruiter-login-link"
+              onClick={() => {
+                setUsername("recruiter");
+                setError("");
+                passwordRef.current?.focus();
+              }}
+            >
+              Recruiter access
+            </button>
+            {normalizeAccountUsername(username) === "recruiter" ? (
+              <p className="quiz-hint">Read-only preview. The personal quiz is skipped.</p>
+            ) : null}
           </>
         ) : (
           <>

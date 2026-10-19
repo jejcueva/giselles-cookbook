@@ -1,11 +1,18 @@
 import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
+import { roleForAccount, type SessionRole } from "@/lib/auth-roles";
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const encoder = new TextEncoder();
 
 type SessionPayload = {
   u: string;
+  r?: SessionRole;
   exp: number;
+};
+
+export type VerifiedSession = {
+  username: string;
+  role: SessionRole;
 };
 
 function getSessionSecret() {
@@ -52,6 +59,7 @@ async function createHmacKey() {
 export async function createSessionToken(username: string): Promise<string> {
   const payload: SessionPayload = {
     u: username,
+    r: roleForAccount(username),
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const payloadEncoded = toBase64Url(encoder.encode(JSON.stringify(payload)).buffer);
@@ -60,7 +68,7 @@ export async function createSessionToken(username: string): Promise<string> {
   return `${payloadEncoded}.${toBase64Url(signature)}`;
 }
 
-export async function verifySessionToken(token: string): Promise<string | null> {
+export async function verifySessionToken(token: string): Promise<VerifiedSession | null> {
   const [payloadEncoded, signatureEncoded] = token.split(".");
   if (!payloadEncoded || !signatureEncoded) return null;
 
@@ -77,7 +85,9 @@ export async function verifySessionToken(token: string): Promise<string | null> 
   const payload = JSON.parse(payloadText) as SessionPayload;
   if (!payload?.u || !payload?.exp) return null;
   if (payload.exp <= Math.floor(Date.now() / 1000)) return null;
-  return payload.u;
+
+  const role = payload.r === "recruiter" || payload.r === "owner" ? payload.r : roleForAccount(payload.u);
+  return { username: payload.u, role };
 }
 
 export function sessionCookieOptions() {

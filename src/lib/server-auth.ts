@@ -1,6 +1,6 @@
 import { normalizeAccountUsername } from "@/lib/onboarding-state";
 
-export type Account = "gisellemyluv" | "test";
+export type Account = "gisellemyluv" | "test" | "recruiter";
 
 function resolvePassword(envName: string, devFallback: string): string {
   const value = process.env[envName];
@@ -15,12 +15,13 @@ function getCredentials(): Record<Account, string> {
   return {
     gisellemyluv: resolvePassword("AUTH_PASSWORD_GISELLEMYLUV", "01092026"),
     test: resolvePassword("AUTH_PASSWORD_TEST", "test"),
+    recruiter: resolvePassword("AUTH_PASSWORD_RECRUITER", "recruiter"),
   };
 }
 
 function normalizePassword(user: Account, rawPassword: string): string {
-  if (user === "test") return rawPassword.trim();
-  return rawPassword.replace(/\D/g, "");
+  if (user === "gisellemyluv") return rawPassword.replace(/\D/g, "");
+  return rawPassword.trim();
 }
 
 export function validateCredentials(rawUsername: string, rawPassword: string): Account | null {
@@ -34,4 +35,3 @@ export function validateCredentials(rawUsername: string, rawPassword: string): A
   if (provided !== expected) return null;
   return username;
 }
-

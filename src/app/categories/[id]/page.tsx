@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { useViewer } from "@/components/viewer-provider";
 import { RecipeCard } from "@/features/recipes";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
@@ -24,6 +25,7 @@ type RecipeCategoryRow = {
 
 export default function CategoryDetailPage() {
   const params = useParams();
+  const { canWrite } = useViewer();
   const categoryId = params.id as string;
   const [category, setCategory] = useState<Category | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -127,7 +129,7 @@ export default function CategoryDetailPage() {
           <h1 className="section-title">
             {category?.emoji && `${category.emoji} `}{category?.name ?? "Category"}
           </h1>
-          {category && (
+          {category && canWrite ? (
             <button
               type="button"
               className="btn-icon-ghost"
@@ -136,9 +138,9 @@ export default function CategoryDetailPage() {
             >
               ⚙️
             </button>
-          )}
+          ) : null}
         </div>
-        {category && showSettings && (
+        {category && canWrite && showSettings && (
           <div className="category-settings-panel">
             <div className="category-settings-row">
               {category.emoji && (

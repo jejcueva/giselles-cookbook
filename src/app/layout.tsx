@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Dancing_Script, Nunito, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import "../styles/recruiter.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ViewerProvider } from "@/components/viewer-provider";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -37,7 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${nunito.variable} ${playfair.variable} ${dancingScript.variable}`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ViewerProvider>{children}</ViewerProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

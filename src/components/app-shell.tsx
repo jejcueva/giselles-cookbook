@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useViewer } from "@/components/viewer-provider";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -62,6 +63,7 @@ function isPathActive(pathname: string, href: string) {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { canWrite, isRecruiter } = useViewer();
   const [collapsed, setCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -274,16 +276,22 @@ export function AppShell({ children }: AppShellProps) {
             )}
           </div>
 
-          <button
-            type="button"
-            className="btn-primary topbar-new-recipe"
-            onClick={() => setNewRecipeModalOpen(true)}
-            aria-label="Add new recipe"
-          >
-            <span className="new-recipe-plus">+</span>
-            <span className="new-recipe-label">&nbsp;Recipe</span>
-          </button>
+          {canWrite ? (
+            <button
+              type="button"
+              className="btn-primary topbar-new-recipe"
+              onClick={() => setNewRecipeModalOpen(true)}
+              aria-label="Add new recipe"
+            >
+              <span className="new-recipe-plus">+</span>
+              <span className="new-recipe-label">&nbsp;Recipe</span>
+            </button>
+          ) : null}
         </header>
+
+        {isRecruiter ? (
+          <p className="recruiter-banner">Recruiter preview. You can browse the cookbook, and edits stay turned off.</p>
+        ) : null}
 
         {mobileSearchOpen && (
           <div className="mobile-search-overlay" onClick={closeMobileSearch}>

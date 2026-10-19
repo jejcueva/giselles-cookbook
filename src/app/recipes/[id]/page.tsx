@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { useViewer } from "@/components/viewer-provider";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -49,6 +50,7 @@ function trackRecentlyOpenedRecipe(recipeId: string) {
 export default function RecipeDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { canWrite } = useViewer();
   const recipeId = params.id as string;
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [tags, setTags] = useState<string[]>([]);
@@ -120,7 +122,13 @@ export default function RecipeDetailPage() {
         )}
         <div className="recipe-detail-header">
           <h1 className="recipe-detail-title">{recipe.title}</h1>
-          <button type="button" className={`favorite-btn ${recipe.is_favorite ? "favorited" : ""}`} onClick={toggleFavorite} aria-label={recipe.is_favorite ? "Remove from favorites" : "Add to favorites"}>
+          <button
+            type="button"
+            className={`favorite-btn ${recipe.is_favorite ? "favorited" : ""}`}
+            onClick={canWrite ? toggleFavorite : undefined}
+            disabled={!canWrite}
+            aria-label={recipe.is_favorite ? "Remove from favorites" : "Add to favorites"}
+          >
             {recipe.is_favorite ? "♥" : "♡"}
           </button>
         </div>
@@ -185,10 +193,12 @@ export default function RecipeDetailPage() {
         {recipe.source_url && (
           <a href={recipe.source_url} target="_blank" rel="noopener noreferrer" className="source-link">View original recipe</a>
         )}
-        <div className="recipe-detail-actions">
-          <Link href={`/recipes/${recipe.id}/edit`} className="btn-primary">Edit</Link>
-          <button type="button" className="btn-danger" onClick={handleDelete}>Delete</button>
-        </div>
+        {canWrite ? (
+          <div className="recipe-detail-actions">
+            <Link href={`/recipes/${recipe.id}/edit`} className="btn-primary">Edit</Link>
+            <button type="button" className="btn-danger" onClick={handleDelete}>Delete</button>
+          </div>
+        ) : null}
       </div>
     </AppShell>
   );

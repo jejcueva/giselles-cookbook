@@ -1,5 +1,7 @@
 "use client";
 
+import { useViewer } from "@/components/viewer-provider";
+
 import { AppShell } from "@/components/app-shell";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -42,6 +44,7 @@ function parseRecipeBlock(content: string): { text: string; recipe: RecipeData |
 }
 
 function ChatBubble({ msg }: { msg: Message }) {
+  const { canWrite } = useViewer();
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   if (msg.role === "user") {
@@ -83,7 +86,7 @@ function ChatBubble({ msg }: { msg: Message }) {
   return (
     <div className="chat-bubble chat-bubble-assistant">
       {text}
-      {recipe && (
+      {recipe && canWrite ? (
         <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--color-border, #ebd8c8)" }}>
           <button
             className={saveState === "saved" ? "btn-secondary" : "btn-primary"}
@@ -97,7 +100,7 @@ function ChatBubble({ msg }: { msg: Message }) {
             {saveState === "error" && "Failed — Try Again"}
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
