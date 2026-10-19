@@ -135,7 +135,7 @@ Auth cookie/session, middleware (plus two bypass paths), in-memory rate limiter 
 - `AWS::Lightsail::Container` service `cute-cookbook`, power `micro`, scale 1, public domain names attached to the certificate.
 - No `ContainerServiceDeployment` in CDK — deployments are driven by CI (§5).
 
-**Container image** — `Dockerfile`: multi-stage on `node:20-alpine`, `next build` with `output: "standalone"`, runtime stage copies `.next/standalone`, `.next/static`, `public`, runs as non-root, exposes 3000. `.dockerignore` excludes `node_modules`, `.next`, `.env*`, `infra`, `docs`.
+**Container image** — `Dockerfile`: multi-stage on `node:22-alpine` (Node 20 is EOL; CI also runs Node 22), `next build` with `output: "standalone"`, runtime stage copies `.next/standalone`, `.next/static`, `public`, runs as non-root, exposes 3000. `.dockerignore` excludes `node_modules`, `.next`, `.env*`, `infra`, `docs`.
 
 **DNS** — Lightsail DNS zone for `cutecookbook.com` (free; supports apex alias to container services). Registrar nameservers point at it. Records: apex alias → container service, `www` CNAME → container service, `img` CNAME → CloudFront, plus ACM and Lightsail certificate validation CNAMEs.
 
