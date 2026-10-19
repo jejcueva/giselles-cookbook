@@ -2,22 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth-session";
 import { isRecruiterBlockedPath } from "@/lib/auth-roles";
-
-const PUBLIC_ROUTES = new Set(["/login"]);
-
-function isPublicPath(pathname: string): boolean {
-  return PUBLIC_ROUTES.has(pathname);
-}
-
-function isBypassedPath(pathname: string): boolean {
-  return (
-    pathname.startsWith("/api/auth/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/robots.txt") ||
-    pathname.startsWith("/sitemap.xml")
-  );
-}
+import { isBypassedPath, isPublicPath } from "@/lib/route-access";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
