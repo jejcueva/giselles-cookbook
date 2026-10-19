@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { useViewer } from "@/components/viewer-provider";
 import { RecipeCard } from "@/features/recipes";
 import { supabase } from "@/lib/supabase";
 import { resolveCoverImageUrl } from "@/lib/storage-images";
@@ -179,6 +180,7 @@ const MOBILE_HERO_GAP_GROW = [0.48, 0.92, 0.34, 0.78] as const;
 const RECENTLY_OPENED_KEY = "cute-cookbook-recently-opened-recipes";
 
 export default function Home() {
+  const { canWrite } = useViewer();
   const [time] = useState(getTimeOfDay);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
@@ -414,17 +416,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="dashboard-section">
-        <h2 className="section-title">Your Birthday Letter</h2>
-        <div className="empty-state">
-          <div>
-            <p className="empty-state-text">Want to reread your birthday love letter?</p>
-            <Link href="/letter" className="letter-link">
-              Read your letter &rarr;
-            </Link>
+      {canWrite ? (
+        <section className="dashboard-section">
+          <h2 className="section-title">Your Birthday Letter</h2>
+          <div className="empty-state">
+            <div>
+              <p className="empty-state-text">Want to reread your birthday love letter?</p>
+              <Link href="/letter" className="letter-link">
+                Read your letter &rarr;
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </AppShell>
   );
 }

@@ -1,22 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth-session";
-
-const PUBLIC_ROUTES = new Set(["/login"]);
-
-function isPublicPath(pathname: string): boolean {
-  return PUBLIC_ROUTES.has(pathname);
-}
-
-function isBypassedPath(pathname: string): boolean {
-  return (
-    pathname.startsWith("/api/auth/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/robots.txt") ||
-    pathname.startsWith("/sitemap.xml")
-  );
-}
+import { isRecruiterBlockedPath } from "@/lib/auth-roles";
+import { isBypassedPath, isPublicPath } from "@/lib/route-access";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,14 +11,19 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value ?? "";
-  const hasSession = Boolean(token) && Boolean(await verifySessionToken(token));
+  const session = token ? await verifySessionToken(token) : null;
 
-  if (!hasSession && !isPublicPath(pathname)) {
+  if (!session && !isPublicPath(pathname)) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (hasSession && pathname === "/login") {
+  if (session?.role === "recruiter" && isRecruiterBlockedPath(pathname)) {
+    const homeUrl = new URL("/", request.url);
+    return NextResponse.redirect(homeUrl);
+  }
+
+  if (session && pathname === "/login") {
     const homeUrl = new URL("/", request.url);
     return NextResponse.redirect(homeUrl);
   }

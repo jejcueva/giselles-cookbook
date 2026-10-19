@@ -1,0 +1,35 @@
+# dependencies / build output (rebuilt inside the image)
+node_modules
+.next
+coverage
+tsconfig.tsbuildinfo
+
+# secrets — never in the build context
+.env
+.env.*
+
+# VCS, CI, hosting metadata
+.git
+.github
+.vercel
+
+# IDE and agent tooling
+.idea
+.claude
+.cursor
+.codex
+.agents
+agents
+
+# docs and plans
+docs
+*.md
+
+# tests and test config are not needed to build the app
+vitest.config.mts
+**/*.test.ts
+
+# future phases (not part of the app image)
+infra
+scripts
+supabase
