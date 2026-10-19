@@ -24,11 +24,11 @@ Spec: §4 (container image), §8 (test tooling), §3 (`/api/health`).
 
 ### Phase 1 — Infrastructure (CDK)
 Spec: §1 (table definition), §2 (bucket/CDN/IAM), §4.
-- `infra/` package with `CuteCookbookDataStack` and `CuteCookbookComputeStack`.
-- CDK assertion tests (GSI1, PITR, RETAIN, Block Public Access, IAM scoping, OAC).
-- `cdk deploy` to us-east-1; ACM validation CNAME added at the current DNS provider; Lightsail certificate requested.
-- Create access keys for `cute-cookbook-app` and `cute-cookbook-deploy`.
-- **Done when:** infra tests pass; all resources exist; stack outputs recorded in `.env.local` (app) for local development.
+- `infra/` package with `CuteCookbookCertificates`, `CuteCookbookData`, and `CuteCookbookCompute` stacks (container service gated behind a context flag and not created until Phase 6, since Lightsail bills it from creation).
+- CDK assertion tests (GSI1, PITR, RETAIN, Block Public Access, IAM scoping, OAC, container gating); infra typecheck/test/synth in CI.
+- `cdk bootstrap` + `cdk deploy` to us-east-1; ACM and Lightsail validation CNAMEs plus the `img` CNAME added at the current DNS provider.
+- Create the access key for `cute-cookbook-app` (the deploy user's key is created in Phase 6 when it is first needed).
+- **Done when:** infra tests pass locally and in CI; certificates issued; table, bucket, CDN, and IAM users exist; app credentials and stack outputs recorded in `.env.local`; a CLI round-trip (put/get item, S3 upload, CDN fetch) succeeds.
 
 ### Phase 2 — Data layer
 Spec: §1, §2 (S3 module), §3 (new modules), §7 (typed errors, config).

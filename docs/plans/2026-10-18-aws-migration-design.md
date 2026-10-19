@@ -120,19 +120,23 @@ Auth cookie/session, middleware (plus two bypass paths), in-memory rate limiter 
 
 ## 4. Infrastructure (CDK)
 
-`infra/` is a standalone npm package (`aws-cdk-lib`, `constructs`, `vitest`). Region `us-east-1`. Stacks:
+`infra/` is a standalone npm package (`aws-cdk-lib`, `constructs`, `vitest`). Region `us-east-1`. Three stacks, deployed in order:
 
-**`CuteCookbookDataStack`**
+**`CuteCookbookCertificates`** — certificates live in their own stack because manually-validated ACM certificates hold a CloudFormation stack in `CREATE_IN_PROGRESS` until the validation CNAME exists (72-hour timeout); isolating them keeps the data stack's deploy independent.
+- ACM certificate `img.cutecookbook.com` (DNS validation, records added manually at the DNS provider).
+- `AWS::Lightsail::Certificate` `cute-cookbook-site` for `cutecookbook.com` + `www.cutecookbook.com` (validation CNAMEs also added manually; Lightsail requires the certificate to be issued before it can be attached to a container service).
+- Outputs: `ImageCertificateArn`, `SiteCertificateName`.
+
+**`CuteCookbookData`**
 - DynamoDB table per §1.
-- S3 bucket per §2.
-- ACM certificate `img.cutecookbook.com` (DNS validation).
-- CloudFront distribution with OAC to the bucket, HTTPS only, default caching.
+- S3 bucket per §2. CORS origins: `https://cutecookbook.com`, `https://www.cutecookbook.com`, and `http://localhost:3000` (local development needs presigned PUTs too).
+- CloudFront distribution with OAC to the bucket, HTTPS only, default caching, using the ACM certificate from the certificates stack.
 - IAM user `cute-cookbook-app` + inline policy per §2.
-- Outputs: `TableName`, `BucketName`, `ImageCdnHost`, `AppUserName`.
+- Outputs: `TableName`, `BucketName`, `ImageCdnDomainName` (the `*.cloudfront.net` name the `img` CNAME points at), `AppUserName`.
 
-**`CuteCookbookComputeStack`**
-- `AWS::Lightsail::Certificate` for `cutecookbook.com`, `www.cutecookbook.com`.
-- `AWS::Lightsail::Container` service `cute-cookbook`, power `micro`, scale 1, public domain names attached to the certificate.
+**`CuteCookbookCompute`**
+- IAM user `cute-cookbook-deploy` + inline policy per §5.
+- `AWS::Lightsail::Container` service `cute-cookbook`, power `micro`, scale 1, public domain names attached to `cute-cookbook-site` — **created only when the CDK context flag `containerService=true` is set.** Lightsail bills a container service from creation ($10/mo) whether enabled, disabled, or empty, so the service is not created until Phase 6, immediately before the first deployment.
 - No `ContainerServiceDeployment` in CDK — deployments are driven by CI (§5).
 
 **Container image** — `Dockerfile`: multi-stage on `node:22-alpine` (Node 20 is EOL; CI also runs Node 22), `next build` with `output: "standalone"`, runtime stage copies `.next/standalone`, `.next/static`, `public`, runs as non-root, exposes 3000. `.dockerignore` excludes `node_modules`, `.next`, `.env*`, `infra`, `docs`.
@@ -147,7 +151,7 @@ Auth cookie/session, middleware (plus two bypass paths), in-memory rate limiter 
 `.github/workflows/deploy.yml`, triggered on push to `main`. `ci.yml` continues to run lint/typecheck/build/tests on PRs and gains a `docker build` step.
 
 1. Checkout, Node 20, `npm ci`, lint, test, build.
-2. Configure AWS credentials from GitHub Secrets — IAM user `cute-cookbook-deploy` with only `lightsail:PushContainerImage`, `lightsail:RegisterContainerImage`, `lightsail:CreateContainerServiceDeployment`, `lightsail:GetContainerServices`, `lightsail:GetContainerImages`.
+2. Configure AWS credentials from GitHub Secrets — IAM user `cute-cookbook-deploy` with only `lightsail:CreateContainerServiceRegistryLogin`, `lightsail:RegisterContainerImage`, `lightsail:CreateContainerServiceDeployment`, `lightsail:GetContainerServices`, `lightsail:GetContainerServiceDeployments`, `lightsail:GetContainerImages` (the CLI's `push-container-image` is implemented with the first two). Lightsail does not support resource-level scoping for these actions, so the resource is `*`.
 3. `docker build -t cute-cookbook:${GITHUB_SHA} .`
 4. `aws lightsail push-container-image --service-name cute-cookbook --label app --image cute-cookbook:${GITHUB_SHA}`; capture the returned image reference.
 5. Render deployment JSON: container `app` with that image, port 3000 HTTP, env vars from Secrets/Variables; public endpoint `app:3000` with health check path `/api/health`, healthy threshold 2, interval 10 s.
