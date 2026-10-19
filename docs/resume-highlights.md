@@ -14,6 +14,7 @@ Update this file whenever a decision or implementation adds something worth sayi
 - `planned` Applied least-privilege IAM: application credentials scoped to a single DynamoDB table/index and a single S3 bucket's object operations.
 - `planned` Wrote an idempotent one-shot migration script moving live Postgres rows and Supabase Storage objects to DynamoDB and S3 while preserving public share-link IDs.
 - `planned` Operated within a fixed $200/12-month AWS credit budget by choosing always-free services (DynamoDB on-demand, CloudFront) and right-sizing compute (~$10/mo).
+- `done` Containerized a Next.js 16 app with a three-stage Docker build (pinned `npm ci` deps, standalone output, non-root Alpine runtime, health endpoint), keeping secrets out of the image via `.dockerignore` and runtime env injection.
 
 ## Talking points / stories
 
