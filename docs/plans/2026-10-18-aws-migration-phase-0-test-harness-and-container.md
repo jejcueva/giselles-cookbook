@@ -15,7 +15,7 @@
 
 - Production still runs on Vercel + Supabase. Nothing in this phase may change runtime behavior for signed-in users.
 - Node floor: 22 (Dockerfile base `node:22-alpine`; CI `node-version: 22`). Local Node 24 is fine.
-- New runtime dependencies: none. New dev dependencies: `vitest`, `@vitest/coverage-v8` only.
+- New runtime dependencies: none. New dev dependencies: `vitest`, `@vitest/coverage-v8` only; `@types/node` is bumped to `^22` to satisfy Vitest 5 peers and match the Node 22 floor.
 - Tests are colocated: `src/**/*.test.ts`. Coverage target for new modules in this phase: 100% (they are tiny and pure).
 - The `/api/health` bypass must be an exact match (`pathname === "/api/health"`), never `startsWith`.
 - Secrets never enter the image. `.env*` is excluded by `.dockerignore`; env is injected at `docker run` / deploy time.
@@ -45,7 +45,7 @@ Expected: `git status --short` prints nothing.
 
 | Path | Action | Responsibility |
 |---|---|---|
-| `vitest.config.ts` | Create | Vitest runner config: node env, `src/**/*.test.ts`, `@/` alias, v8 coverage |
+| `vitest.config.mts` | Create | Vitest runner config: node env, `src/**/*.test.ts`, `@/` alias, v8 coverage |
 | `package.json` | Modify | `test`, `test:watch`, `test:coverage` scripts; dev deps |
 | `eslint.config.mjs` | Modify | Ignore `coverage/**` |
 | `src/lib/auth-roles.test.ts` | Create | First real test; proves alias + runner against an existing pure module |
@@ -65,7 +65,7 @@ Expected: `git status --short` prints nothing.
 ### Task 1: Vitest runner
 
 **Files:**
-- Create: `vitest.config.ts`
+- Create: `vitest.config.mts`
 - Modify: `package.json` (scripts, devDependencies)
 - Modify: `eslint.config.mjs:9-18`
 - Test: `src/lib/auth-roles.test.ts`
@@ -77,14 +77,14 @@ Expected: `git status --short` prints nothing.
 - [ ] **Step 1: Install dev dependencies**
 
 ```powershell
-npm install --save-dev vitest @vitest/coverage-v8
+npm install --save-dev @types/node@^22 vitest @vitest/coverage-v8
 ```
 
 Expected: `package.json` `devDependencies` now lists `vitest` and `@vitest/coverage-v8`; `package-lock.json` updated. No peer-dependency errors.
 
 - [ ] **Step 2: Add the config**
 
-Create `vitest.config.ts`:
+Create `vitest.config.mts`:
 
 ```ts
 import { fileURLToPath } from "node:url";
@@ -194,7 +194,7 @@ describe("isRecruiterBlockedPath", () => {
 npm test
 ```
 
-Expected: `Test Files 1 passed (1)`, `Tests 16 passed (16)` (2 plain `it` cases + 8 blocked + 6 allowed `it.each` cases). Exit code 0. If the `@/lib/auth-roles` import fails to resolve, the alias in `vitest.config.ts` is wrong — fix that before continuing.
+Expected: `Test Files 1 passed (1)`, `Tests 16 passed (16)` (2 plain `it` cases + 8 blocked + 6 allowed `it.each` cases). Exit code 0. If the `@/lib/auth-roles` import fails to resolve, the alias in `vitest.config.mts` is wrong — fix that before continuing.
 
 - [ ] **Step 7: Confirm lint and build still pass**
 
@@ -203,12 +203,12 @@ npm run lint
 npm run build
 ```
 
-Expected: both exit 0. `next build` type-checks `vitest.config.ts` and the test file; they must compile.
+Expected: both exit 0. `next build` type-checks `vitest.config.mts` and the test file; they must compile.
 
 - [ ] **Step 8: Commit**
 
 ```powershell
-git add vitest.config.ts package.json package-lock.json eslint.config.mjs src/lib/auth-roles.test.ts
+git add vitest.config.mts package.json package-lock.json eslint.config.mjs src/lib/auth-roles.test.ts
 git commit -m "test: add Vitest runner with coverage and first auth-roles tests"
 ```
 
@@ -556,7 +556,7 @@ docs
 *.md
 
 # tests and test config are not needed to build the app
-vitest.config.ts
+vitest.config.mts
 **/*.test.ts
 
 # future phases (not part of the app image)
@@ -594,7 +594,7 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
+  && adduser --system --uid 1001 --ingroup nodejs nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -616,7 +616,7 @@ Notes for the implementer:
 docker build -t cute-cookbook:local .
 ```
 
-Expected: ends with `naming to docker.io/library/cute-cookbook:local`. Build takes 2–5 minutes the first time. If the build fails in the `builder` stage with a TypeScript error about a missing test file or `vitest`, the `.dockerignore` is excluding something `tsconfig.json` includes — this is fine for `**/*.test.ts` (TS ignores missing files), but confirm `vitest.config.ts` isn't imported anywhere in `src/`.
+Expected: ends with `naming to docker.io/library/cute-cookbook:local`. Build takes 2–5 minutes the first time. If the build fails in the `builder` stage with a TypeScript error about a missing test file or `vitest`, the `.dockerignore` is excluding something `tsconfig.json` includes — this is fine for `**/*.test.ts` (TS ignores missing files), but confirm `vitest.config.mts` isn't imported anywhere in `src/`.
 
 - [ ] **Step 6: Run and smoke-test the container**
 
@@ -648,7 +648,8 @@ curl.exe -i http://localhost:3000/
 Expected: `HTTP/1.1 307 Temporary Redirect` with `location: /login` (middleware is running inside the image).
 
 ```powershell
-curl.exe -i -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" --data "{\"username\":\"test\",\"password\":\"test\"}"
+Set-Content -Path $env:TEMP\login.json -Value '{"username":"test","password":"test"}'
+curl.exe -i -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" --data "@$env:TEMP\login.json"
 ```
 
 Expected: `HTTP/1.1 200 OK`, a `set-cookie:` header, body `{"ok":true}` (the server-side auth stack works with injected env).
@@ -768,4 +769,20 @@ If `Build container image` fails but the local build passed, compare the runner'
 - [ ] `docs/resume-highlights.md` has the containerization bullet marked `done`.
 - [ ] Production on Vercel is unchanged (Vercel ignores `output: "standalone"` and the Dockerfile; `vercel-deploy.yml` still runs on push — confirm the Vercel deployment also succeeded with `gh run list --workflow "Vercel Deploy" --limit 1`).
 
+## Execution notes (2026-10-19)
+
+Executed on branch `feat/aws-migration-phase-0` (PR #1), commits `63a0da9..e8522aa`. Deviations approved during execution and reflected above:
+- `vitest.config.mts` instead of `.ts` (silences Vite's ESM loader warning; test output pristine).
+- `@types/node` bumped to `^22` (Vitest 5 peer requirement; matches Node 22 floor).
+- `adduser --ingroup nodejs` so the runtime user's gid is `1001(nodejs)` as the smoke test expects.
+- Login smoke test sends the JSON body from a file (PowerShell 5.1 mangles inline escaped quotes).
+- Container smoke test ran on host port 3100 because a dev server occupied 3000.
+
+Deferred findings from the whole-branch review, to pick up in later phases:
+- Phase 6 `deploy.yml`: explicit `permissions:`, `concurrency` group, buildx + GHA layer cache; Lightsail health-check path `/api/health`; retiring `vercel-deploy.yml` also removes its Node 20 runner.
+- Phase 3 (when editing `route-access.ts`): make `robots.txt` / `sitemap.xml` exact matches; add the `/api/auth` no-trailing-slash test.
+- Separate chores: pre-existing `npm audit` findings; Next 16 `middleware.ts` → `proxy.ts` rename; remove the `.env` file-reading fallback in `scrape-recipe/route.ts` (it makes Next trace `src/` into the standalone output); point `npm start` at `node .next/standalone/server.js` if anyone uses it locally.
+
 Next: Phase 1 plan (`infra/` CDK stacks).
+
+
