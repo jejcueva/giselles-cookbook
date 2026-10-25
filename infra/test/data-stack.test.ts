@@ -1,16 +1,24 @@
 import { App } from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
-import { CertificatesStack } from "../lib/certificates-stack";
 import { config } from "../lib/config";
 import { DataStack } from "../lib/data-stack";
+import { ImageCertificateStack } from "../lib/image-certificate-stack";
 
-const env = { account: "123456789012", region: "us-east-1" };
+const account = "123456789012";
+const env = { account, region: config.region };
 
 function synth() {
   const app = new App();
-  const certs = new CertificatesStack(app, "Certs", { env });
-  const stack = new DataStack(app, "Data", { env, imageCertificate: certs.imageCertificate });
+  const imageCertificate = new ImageCertificateStack(app, "ImageCert", {
+    env: { account, region: config.cloudFrontCertificateRegion },
+    crossRegionReferences: true,
+  });
+  const stack = new DataStack(app, "Data", {
+    env,
+    crossRegionReferences: true,
+    imageCertificate: imageCertificate.certificate,
+  });
   return { stack, template: Template.fromStack(stack) };
 }
 
@@ -111,6 +119,20 @@ describe("DataStack S3 bucket", () => {
 });
 
 describe("DataStack CloudFront", () => {
+  it("uses the default hostname until an us-east-1 certificate ARN is supplied", () => {
+    const app = new App();
+    const stack = new DataStack(app, "Data", { env });
+    const template = Template.fromStack(stack);
+    const distributions = template.findResources("AWS::CloudFront::Distribution");
+    const distributionConfig = (
+      Object.values(distributions)[0].Properties as {
+        DistributionConfig: { Aliases?: string[]; ViewerCertificate?: unknown };
+      }
+    ).DistributionConfig;
+    expect(distributionConfig.Aliases).toBeUndefined();
+    expect(distributionConfig.ViewerCertificate).toBeUndefined();
+  });
+
   it("fronts the bucket through Origin Access Control over HTTPS only", () => {
     const { template } = synth();
     template.resourceCountIs("AWS::CloudFront::Distribution", 1);

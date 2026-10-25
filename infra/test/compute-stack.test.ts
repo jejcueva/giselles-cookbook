@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { ComputeStack } from "../lib/compute-stack";
 import { config } from "../lib/config";
 
-const env = { account: "123456789012", region: "us-east-1" };
+const env = { account: "123456789012", region: config.region };
 
 function synth(createContainerService: boolean) {
   const app = new App();
