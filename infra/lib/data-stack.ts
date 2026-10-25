@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import type * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
@@ -9,8 +9,13 @@ import type { Construct } from "constructs";
 import { config } from "./config";
 
 export interface DataStackProps extends cdk.StackProps {
-  /** ACM certificate for img.cutecookbook.com, from CertificatesStack. */
-  imageCertificate: acm.ICertificate;
+  /**
+   * ACM certificate for img.cutecookbook.com. Must be in us-east-1.
+   * Omit it to serve the CDN on the default cloudfront.net hostname.
+   */
+  imageCertificate?: acm.ICertificate;
+  /** us-east-1 ACM certificate ARN. Used when `imageCertificate` is omitted. */
+  imageCertificateArn?: string;
 }
 
 export class DataStack extends cdk.Stack {
@@ -22,9 +27,15 @@ export class DataStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: DataStackProps) {
     super(scope, id, props);
 
+    const imageCertificate =
+      props.imageCertificate ??
+      (props.imageCertificateArn
+        ? acm.Certificate.fromCertificateArn(this, "ImageCertificate", props.imageCertificateArn)
+        : undefined);
+
     this.table = this.createTable();
     this.bucket = this.createBucket();
-    this.distribution = this.createDistribution(props.imageCertificate);
+    this.distribution = this.createDistribution(imageCertificate);
     this.appUser = this.createAppUser();
 
     // table.tableName and user.userName synthesize as CloudFormation Refs.
@@ -76,7 +87,7 @@ export class DataStack extends cdk.Stack {
     });
   }
 
-  private createDistribution(certificate: acm.ICertificate): cloudfront.Distribution {
+  private createDistribution(certificate?: acm.ICertificate): cloudfront.Distribution {
     return new cloudfront.Distribution(this, "ImageCdn", {
       comment: "Cute Cookbook recipe images",
       defaultBehavior: {
@@ -85,8 +96,7 @@ export class DataStack extends cdk.Stack {
         allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
-      domainNames: [config.imageDomain],
-      certificate,
+      ...(certificate ? { domainNames: [config.imageDomain], certificate } : {}),
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
     });

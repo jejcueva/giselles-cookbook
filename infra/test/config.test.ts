@@ -10,8 +10,13 @@ const DYNAMO_TABLE_NAME = /^[a-zA-Z0-9_.-]{3,255}$/;
 const IAM_USER_NAME = /^[\w+=,.@-]{1,64}$/;
 
 describe("infra config", () => {
-  it("targets us-east-1 (required for CloudFront certificates)", () => {
-    expect(config.region).toBe("us-east-1");
+  it("targets the project Region", () => {
+    expect(config.region).toBe("us-east-2");
+  });
+
+  it("keeps the CloudFront certificate in us-east-1", () => {
+    expect(config.cloudFrontCertificateRegion).toBe("us-east-1");
+    expect(config.accountId).toMatch(/^\d{12}$/);
   });
 
   it("uses Lightsail-legal names for the container service and certificate", () => {
