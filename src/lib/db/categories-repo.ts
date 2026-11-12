@@ -63,14 +63,18 @@ async function create(input: CreateCategoryInput, overrides: { id?: string } = {
   return category;
 }
 
-async function rename(id: string, inputName: string): Promise<Category> {
+async function rename(id: string, inputName: string, patch: { emoji?: string | null } = {}): Promise<Category> {
   const name = cleanName(inputName);
   const current = await getById(id);
+  const emojiPatch = patch.emoji !== undefined ? { emoji: patch.emoji } : {};
   const update = { Update: {
     TableName: tableName, Key: categoryKey(id), ConditionExpression: "attribute_exists(PK) AND #name = :old",
-    UpdateExpression: "SET #name = :name, GSI1SK = :sort",
+    UpdateExpression: `SET #name = :name, GSI1SK = :sort${patch.emoji !== undefined ? ", emoji = :emoji" : ""}`,
     ExpressionAttributeNames: { "#name": "name" },
-    ExpressionAttributeValues: { ":name": name, ":sort": name.toLowerCase(), ":old": current.name },
+    ExpressionAttributeValues: {
+      ":name": name, ":sort": name.toLowerCase(), ":old": current.name,
+      ...(patch.emoji !== undefined ? { ":emoji": patch.emoji } : {}),
+    },
   } };
   const sameKey = current.name.toLowerCase() === name.toLowerCase();
   const items = sameKey ? [update] : [
@@ -79,7 +83,7 @@ async function rename(id: string, inputName: string): Promise<Category> {
     { Put: { TableName: tableName, Item: categoryNameKey(name), ConditionExpression: "attribute_not_exists(PK)" } },
   ];
   await transact(items, sameKey ? [] : [2], id);
-  return { ...current, name };
+  return { ...current, name, ...emojiPatch };
 }
 
 async function setEmoji(id: string, emoji: string | null): Promise<Category> {

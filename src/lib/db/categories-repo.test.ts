@@ -196,4 +196,30 @@ describe("categoriesRepo", () => {
     await expect(categoriesRepo.list()).rejects.toBe(error);
     expect(ddb.commandCalls(TransactWriteCommand)).toHaveLength(0);
   });
+
+  it("renames and sets emoji in the same transaction action", async () => {
+    const result = await categoriesRepo.rename("c1", "Lunch", { emoji: "L" });
+    expect(result).toMatchObject({ name: "Lunch", emoji: "L" });
+    expect(tx()[0].Update).toMatchObject({
+      UpdateExpression: "SET #name = :name, GSI1SK = :sort, emoji = :emoji",
+      ExpressionAttributeValues: { ":name": "Lunch", ":sort": "lunch", ":old": "Dinner", ":emoji": "L" },
+    });
+    expect(tx()).toHaveLength(3);
+    expect(ddb.commandCalls(UpdateCommand)).toHaveLength(0);
+  });
+  it("clears emoji in a case-only rename without duplicate lock actions", async () => {
+    expect(await categoriesRepo.rename("c1", "DINNER", { emoji: null })).toMatchObject({ name: "DINNER", emoji: null });
+    expect(tx()).toHaveLength(1);
+    expect(tx()[0].Update?.ExpressionAttributeValues![":emoji"]).toBeNull();
+  });
+  it("keeps an omitted emoji untouched", async () => {
+    ddb.on(GetCommand).resolves({ Item: { ...category, emoji: "D" } });
+    expect((await categoriesRepo.rename("c1", "Lunch", {})).emoji).toBe("D");
+    expect(tx()[0].Update?.UpdateExpression).not.toContain("emoji");
+  });
+  it("does not apply a separate emoji write when name uniqueness conflicts", async () => {
+    ddb.on(TransactWriteCommand).rejects(canceled(["None", "None", "ConditionalCheckFailed"]));
+    await expect(categoriesRepo.rename("c1", "Lunch", { emoji: "L" })).rejects.toBeInstanceOf(ConflictError);
+    expect(ddb.commandCalls(UpdateCommand)).toHaveLength(0);
+  });
 });
