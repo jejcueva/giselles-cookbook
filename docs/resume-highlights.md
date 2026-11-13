@@ -15,6 +15,8 @@ Update this file whenever a decision or implementation adds something worth sayi
 - `planned` Wrote an idempotent one-shot migration script moving live Postgres rows and Supabase Storage objects to DynamoDB and S3 while preserving public share-link IDs.
 - `planned` Operated within a fixed $200/12-month AWS credit budget by choosing always-free services (DynamoDB on-demand, CloudFront) and right-sizing compute (~$10/mo).
 - `done` Containerized a Next.js 16 app with a three-stage Docker build (pinned `npm ci` deps, standalone output, non-root Alpine runtime, health endpoint), keeping secrets out of the image via `.dockerignore` and runtime env injection.
+- `done` Built a tested AWS data layer for a Next.js app: DynamoDB repositories with paginated queries and transactional category-name uniqueness, plus validated five-minute S3 presigned uploads, CloudFront URL resolution, and best-effort cover cleanup; verified recipe create/list/delete against the real table with no leftover smoke data.
+- `done` Added validated Next.js APIs over DynamoDB and S3 with cookie-based viewer/owner authorization, atomic category patches, same-origin write checks, bounded JSON bodies, explicit public-share responses, and mocked route tests; verified the authenticated create/upload/read/favorite/delete flow locally against existing AWS resources.
 
 ## Talking points / stories
 
