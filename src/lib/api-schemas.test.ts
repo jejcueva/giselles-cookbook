@@ -16,6 +16,7 @@ it("outputs the Phase 2 shapes and preserves nullable and fractional values", ()
 });
 it.each(["id", "createdAt", "updatedAt", "PK", "SK", "GSI1PK"])("rejects injected %s", (field) => {
   expect(recipeCreateSchema.safeParse({ ...recipe, [field]: id }).success).toBe(false);
+  expect(recipePatchSchema.safeParse({ title: "Soup", [field]: id }).success).toBe(false);
 });
 it.each([
   { title: " " }, { ingredients: [{ name: "Water", amount: 1, unit: "cup" }] },
