@@ -76,6 +76,17 @@ it("does not replace an unchanged public cover URL with itself", async () => {
   await update(await req("PATCH", { title: "Stew", coverImage }), context());
   expect(recipesRepo.update).toHaveBeenCalledWith(id, { title: "Stew" });
 });
+it.each([
+  "https://d2gmo95al03pdi.cloudfront.net/covers/old.png", null,
+])("skips the write when a PATCH only echoes the unchanged cover %s", async (coverImage) => {
+  const current = { ...recipe, coverImage };
+  vi.mocked(recipesRepo.getById).mockResolvedValue(current);
+  const response = await update(await req("PATCH", { coverImage }), context());
+  expect(response.status).toBe(200);
+  expect(recipesRepo.update).not.toHaveBeenCalled();
+  expect(recipesRepo.getById).toHaveBeenCalledExactlyOnceWith(id);
+  expect(await response.json()).toEqual(current);
+});
 it("passes a new cover key and explicit favorite false", async () => {
   const coverImage = `covers/${id}.png`;
   expect((await update(await req("PATCH", { coverImage }), context())).status).toBe(200);

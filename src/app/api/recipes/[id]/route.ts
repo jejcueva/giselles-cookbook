@@ -23,6 +23,8 @@ export async function PATCH(request: Request, context: Context): Promise<Respons
       if (body.coverImage === current.coverImage) {
         const { coverImage, ...unchangedCoverOmitted } = body;
         void coverImage;
+        // An echoed cover on its own changes nothing, so skip the write that would only bump updatedAt.
+        if (Object.keys(unchangedCoverOmitted).length === 0) return json(current);
         patch = unchangedCoverOmitted;
       }
     }
